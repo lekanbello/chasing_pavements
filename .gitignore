@@ -1,0 +1,35 @@
+# Data (too large for git)
+data/raw/*.osm.pbf
+data/raw/*.tif
+data/raw/bfi_gdp_025deg/
+data/raw/*.zip
+data/processed/*.gpkg
+data/processed/*.npy
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/*_executed.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PDFs and docs (reference papers)
+*.pdf
+
+# HPC
+logs/
+*.out
+*.err
+chasing_env/

@@ -1,0 +1,11 @@
+Kenya Maize Price-Distance Elasticity
+Source: World Bank RTFP, 233 markets, 2007-2026
+Observations: 6,243,468
+
+Log-log: delta = 0.104160 (SE 0.000098), R2 = 0.1528
+Level:   delta = 0.00037686/km (SE 0.00000033), R2 = 0.1749
+
+Mean price gap: 0.2656 (26.6%)
+Median distance: 390 km
+Implied scale (tau=1+dist/scale): 2654 km
+Current calibration scale: 340 km

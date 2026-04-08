@@ -1,0 +1,41 @@
+# Tanzania configuration
+country_name: Tanzania
+iso3: TZA
+year: 2019
+
+# Data paths
+osm_pbf: data/raw/tanzania-latest.osm.pbf
+gadm_gpkg: data/raw/gadm41_TZA.gpkg
+gadm_layer: ADM_ADM_2
+worldpop_url: https://data.worldpop.org/GIS/Population/Global_2000_2020/2019/TZA/tza_ppp_2019.tif
+worldpop_path: data/raw/tza_ppp_2019.tif
+
+# Spatial
+utm_epsg: 32737  # UTM zone 37S
+
+# Output paths
+roads_gpkg: data/processed/tanzania_roads.gpkg
+admin_gpkg: data/processed/tanzania_admin2.gpkg
+trade_costs_baseline: data/processed/tanzania_trade_costs_baseline.npy
+trade_costs_counterfactual: data/processed/tanzania_trade_costs_counterfactual.npy
+admin_names: data/processed/tanzania_admin2_names.npy
+calibrated_gpkg: data/processed/tanzania_calibrated.gpkg
+trade_shares: data/processed/tanzania_baseline_trade_shares.npy
+model_params: data/processed/tanzania_model_params.json
+counterfactual_gpkg: data/processed/tanzania_counterfactual.gpkg
+counterfactual_results: data/processed/tanzania_counterfactual_results.json
+
+# National GDP (current USD, 2019) — fallback if WDI API is down
+national_gdp_fallback: 61026731926
+
+# Model parameters
+parameters:
+  theta: 5.0
+  kappa: 2.0
+  alpha: 0.65
+  sigma: 5.0
+
+# Cost multipliers
+cost_paved: 1.0
+cost_unpaved: 3.0
+cost_unknown: 2.0

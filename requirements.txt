@@ -1,0 +1,6 @@
+geopandas
+pyrosm
+shapely
+matplotlib
+contextily
+requests

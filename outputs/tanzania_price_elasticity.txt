@@ -1,0 +1,13 @@
+Tanzania Maize Price-Distance Elasticity (Admin-2 centroids)
+Source: WFP, 25 markets, 2016-2022
+Observations: 26,647
+
+Level: delta = 0.00008984/km (SE 0.00000623, t=14.4)
+Log-log: delta = 0.040691 (SE 0.002874)
+Mean price gap: 0.3304
+Median distance: 503 km
+Implied scale: 11131 km
+
+Comparison:
+  Kenya (RTFP, 234 mkts): delta = 0.000377/km, scale = 2,654 km
+  Tanzania (WFP, Admin-2): delta = 0.000090/km, scale = 11131 km

@@ -1,0 +1,9 @@
+Welfare Sensitivity to Trade Cost Scale
+==================================================
+scale=  340: τ_med=4.40, π_nn=0.018, welfare=+33.60%
+scale=  500: τ_med=3.31, π_nn=0.008, welfare=+32.23%
+scale=  750: τ_med=2.54, π_nn=0.004, welfare=+30.69%
+scale= 1000: τ_med=2.16, π_nn=0.002, welfare=+29.81%
+scale= 1500: τ_med=1.77, π_nn=0.001, welfare=+28.93%
+scale= 2000: τ_med=1.58, π_nn=0.001, welfare=+28.51%
+scale= 2654: τ_med=1.44, π_nn=0.001, welfare=+28.18%
