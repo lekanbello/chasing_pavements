@@ -544,13 +544,20 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Run Chasing Pavements pipeline")
-    parser.add_argument("config", help="Path to country YAML config")
+    parser.add_argument("config", nargs="?", help="Path to country YAML config")
+    parser.add_argument("--iso3", help="Country ISO3 code (uses master CSV instead of YAML)")
     parser.add_argument("--phase", type=int, default=0,
                         help="Run specific phase (1-4). Default 0 = all phases.")
     args = parser.parse_args()
 
-    with open(args.config) as f:
-        cfg = yaml.safe_load(f)
+    if args.iso3:
+        from country_config import get_config_by_iso3
+        cfg = get_config_by_iso3(args.iso3)
+    elif args.config:
+        with open(args.config) as f:
+            cfg = yaml.safe_load(f)
+    else:
+        parser.error("Either config path or --iso3 is required")
 
     phase = args.phase
     country = cfg["country_name"]

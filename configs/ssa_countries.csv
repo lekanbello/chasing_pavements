@@ -1,0 +1,49 @@
+country_name,iso3,geofabrik_filename,utm_epsg,national_gdp_2019,gadm_layer,is_island,region,enabled
+Angola,AGO,angola-latest.osm.pbf,32733,80734428592,ADM_ADM_2,false,Southern Africa,true
+Benin,BEN,benin-latest.osm.pbf,32631,14391686313,ADM_ADM_2,false,West Africa,true
+Botswana,BWA,botswana-latest.osm.pbf,32735,16725908148,ADM_ADM_2,false,Southern Africa,true
+Burkina Faso,BFA,burkina-faso-latest.osm.pbf,32630,16032813503,ADM_ADM_2,false,West Africa,true
+Burundi,BDI,burundi-latest.osm.pbf,32736,2871555326,ADM_ADM_2,false,East Africa,true
+Cameroon,CMR,cameroon-latest.osm.pbf,32632,39667757527,ADM_ADM_2,false,Central Africa,true
+Cape Verde,CPV,cape-verde-latest.osm.pbf,32625,2252177124,ADM_ADM_2,true,West Africa,false
+Central African Republic,CAF,central-african-republic-latest.osm.pbf,32633,2221301351,ADM_ADM_2,false,Central Africa,true
+Chad,TCD,chad-latest.osm.pbf,32633,14905517742,ADM_ADM_2,false,Central Africa,true
+Comoros,COM,comoros-latest.osm.pbf,32740,1187915408,ADM_ADM_2,true,East Africa,false
+Congo DR,COD,congo-democratic-republic-latest.osm.pbf,32633,46845900350,ADM_ADM_2,false,Central Africa,true
+Congo Republic,COG,congo-brazzaville-latest.osm.pbf,32632,13976637779,ADM_ADM_2,false,Central Africa,true
+Cote d Ivoire,CIV,ivory-coast-latest.osm.pbf,32630,60382894697,ADM_ADM_2,false,West Africa,true
+Djibouti,DJI,djibouti-latest.osm.pbf,32638,3088851450,ADM_ADM_2,false,East Africa,true
+Equatorial Guinea,GNQ,equatorial-guinea-latest.osm.pbf,32632,11364133549,ADM_ADM_2,false,Central Africa,true
+Eritrea,ERI,eritrea-latest.osm.pbf,32637,0,ADM_ADM_2,false,East Africa,true
+Ethiopia,ETH,ethiopia-latest.osm.pbf,32637,91834517112,ADM_ADM_2,false,East Africa,true
+Gabon,GAB,gabon-latest.osm.pbf,32632,16874405465,ADM_ADM_2,false,Central Africa,true
+Gambia,GMB,senegal-and-gambia-latest.osm.pbf,32628,1813609692,ADM_ADM_2,false,West Africa,true
+Ghana,GHA,ghana-latest.osm.pbf,32630,68352629246,ADM_ADM_2,false,West Africa,true
+Guinea,GIN,guinea-latest.osm.pbf,32629,13442861496,ADM_ADM_2,false,West Africa,true
+Guinea-Bissau,GNB,guinea-bissau-latest.osm.pbf,32628,1596227316,ADM_ADM_2,false,West Africa,true
+Kenya,KEN,kenya-latest.osm.pbf,32637,100378436207,ADM_ADM_2,false,East Africa,true
+Lesotho,LSO,south-africa-and-lesotho-latest.osm.pbf,32735,2390702295,ADM_ADM_2,false,Southern Africa,true
+Liberia,LBR,liberia-latest.osm.pbf,32629,3319596500,ADM_ADM_2,false,West Africa,true
+Madagascar,MDG,madagascar-latest.osm.pbf,32740,14104664678,ADM_ADM_2,true,East Africa,false
+Malawi,MWI,malawi-latest.osm.pbf,32736,11051852712,ADM_ADM_2,false,Southern Africa,true
+Mali,MLI,mali-latest.osm.pbf,32629,20477421884,ADM_ADM_2,false,West Africa,true
+Mauritius,MUS,mauritius-latest.osm.pbf,32741,14645235204,ADM_ADM_2,true,East Africa,false
+Mozambique,MOZ,mozambique-latest.osm.pbf,32736,15512759046,ADM_ADM_2,false,Southern Africa,true
+Namibia,NAM,namibia-latest.osm.pbf,32633,12541928303,ADM_ADM_2,false,Southern Africa,true
+Niger,NER,niger-latest.osm.pbf,32631,12889555561,ADM_ADM_2,false,West Africa,true
+Nigeria,NGA,nigeria-latest.osm.pbf,32631,668219992691,ADM_ADM_2,false,West Africa,true
+Rwanda,RWA,rwanda-latest.osm.pbf,32736,10349300276,ADM_ADM_2,false,East Africa,true
+Sao Tome and Principe,STP,sao-tome-and-principe-latest.osm.pbf,32632,412976082,ADM_ADM_2,true,Central Africa,false
+Senegal,SEN,senegal-and-gambia-latest.osm.pbf,32628,23403995992,ADM_ADM_2,false,West Africa,true
+Seychelles,SYC,seychelles-latest.osm.pbf,32741,1868690096,ADM_ADM_2,true,East Africa,false
+Sierra Leone,SLE,sierra-leone-latest.osm.pbf,32629,6523577594,ADM_ADM_2,false,West Africa,true
+Somalia,SOM,somalia-latest.osm.pbf,32638,8656000000,ADM_ADM_2,false,East Africa,true
+South Africa,ZAF,south-africa-and-lesotho-latest.osm.pbf,32735,389330032224,ADM_ADM_2,false,Southern Africa,true
+South Sudan,SSD,south-sudan-latest.osm.pbf,32636,0,ADM_ADM_2,false,East Africa,true
+Sudan,SDN,sudan-latest.osm.pbf,32636,32338079165,ADM_ADM_2,false,East Africa,true
+Eswatini,SWZ,swaziland-latest.osm.pbf,32736,4617018958,ADM_ADM_2,false,Southern Africa,true
+Tanzania,TZA,tanzania-latest.osm.pbf,32737,61026731925,ADM_ADM_2,false,East Africa,true
+Togo,TGO,togo-latest.osm.pbf,32631,6992654019,ADM_ADM_2,false,West Africa,true
+Uganda,UGA,uganda-latest.osm.pbf,32636,35353061003,ADM_ADM_2,false,East Africa,true
+Zambia,ZMB,zambia-latest.osm.pbf,32735,23308667781,ADM_ADM_2,false,Southern Africa,true
+Zimbabwe,ZWE,zimbabwe-latest.osm.pbf,32735,33357695635,ADM_ADM_2,false,Southern Africa,true

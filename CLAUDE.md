@@ -80,6 +80,7 @@ Quantitative spatial general equilibrium analysis measuring the GDP cost of unpa
 
 ## Identification / Robustness Notes
 - **Unobserved road quality bundle**: Paved roads are systematically wider, better-maintained, better-aligned than unpaved. Our cost ratio captures the full bundle, not just surface. Frame as the policy-relevant object — real paving projects upgrade multiple characteristics simultaneously. Not a limitation.
+- **OSM vs Liu et al. validation**: Road-level agreement is 93.7%. When OSM says unpaved, Liu agrees 94.2%. When OSM says paved, Liu agrees 73.6% (some OSM "paved" roads are classified as unpaved by Liu — possibly deteriorated). Liu classifies 8.5% of roads as paved vs OSM's 2.2%, likely because Liu classifies OSM's "unknown" segments (94% unpaved, 6% paved). Our OSM-based estimates are conservative. Script: `src/validate_surface.py`.
 - **OSM tags beyond surface**: Checked width (0.5%), lanes (0.4%), maxspeed (0.3%), smoothness (1.4%) — coverage too thin for systematic controls. Can use for spot checks where available.
 - **Within-road-class estimation**: Can estimate speed penalty comparing paved vs. unpaved secondary roads (same class, different surface) to isolate surface from road class effects.
 - **Differentiation from Akbar et al.**: They study urban mobility (within-city speed). We study inter-city trade costs and aggregate welfare. Overlap is methodology (Google Maps data), not contribution. Lead with GE counterfactual and policy numbers, not data methodology.
