@@ -16,6 +16,7 @@ import os
 import sys
 import time
 import json
+import subprocess
 import yaml
 import numpy as np
 import geopandas as gpd
@@ -23,6 +24,21 @@ import pandas as pd
 import osmium
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import shortest_path, connected_components
+
+
+def ensure_file(path, url, label=""):
+    """Download a file if it doesn't exist locally."""
+    if os.path.exists(path):
+        return
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    name = label or os.path.basename(path)
+    print(f"  Downloading {name}...")
+    result = subprocess.run(["curl", "-L", "-o", path, url],
+                            capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"Download failed for {name}: {result.stderr}")
+    size_mb = os.path.getsize(path) / 1e6
+    print(f"  Downloaded: {size_mb:.0f} MB")
 from rasterstats import zonal_stats
 from shapely.geometry import LineString, Point, box
 
@@ -78,6 +94,10 @@ def phase1_extract_roads(cfg):
     pbf = cfg["osm_pbf"]
     out = cfg["roads_gpkg"]
     utm = cfg["utm_epsg"]
+
+    # Auto-download PBF if missing
+    geofabrik_url = f"https://download.geofabrik.de/africa/{os.path.basename(pbf)}"
+    ensure_file(pbf, geofabrik_url, f"{cfg['country_name']} OSM PBF")
 
     print(f"\n{'='*60}")
     print(f"PHASE 1: Extracting roads from {os.path.basename(pbf)}")
@@ -151,6 +171,10 @@ def phase2_trade_costs(cfg):
     cp = cfg["cost_paved"]
     cu = cfg["cost_unpaved"]
     ck = cfg["cost_unknown"]
+
+    # Auto-download GADM if missing
+    gadm_url = f"https://geodata.ucdavis.edu/gadm/gadm4.1/gpkg/gadm41_{cfg['iso3']}.gpkg"
+    ensure_file(gadm, gadm_url, f"{cfg['country_name']} GADM boundaries")
 
     print(f"\n{'='*60}")
     print(f"PHASE 2: Computing trade costs")
@@ -273,14 +297,7 @@ def phase3_calibrate(cfg, admin, tc_base):
 
     # Population
     wp_path = cfg["worldpop_path"]
-    if not os.path.exists(wp_path):
-        print(f"  Downloading WorldPop...")
-        import requests
-        r = requests.get(cfg["worldpop_url"], stream=True)
-        with open(wp_path, 'wb') as f:
-            for chunk in r.iter_content(131072):
-                f.write(chunk)
-        print(f"  Downloaded: {os.path.getsize(wp_path)/1e6:.0f} MB")
+    ensure_file(wp_path, cfg["worldpop_url"], f"{cfg['country_name']} WorldPop")
 
     print("  Aggregating population...")
     stats = zonal_stats(admin.geometry, wp_path, stats=["sum"], nodata=-99999)
