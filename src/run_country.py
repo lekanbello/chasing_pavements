@@ -43,7 +43,7 @@ UNPAVED = {"unpaved", "gravel", "fine_gravel", "compacted", "dirt", "earth",
 
 
 def classify_surface(tag):
-    if tag is None or tag == "":
+    if tag is None or tag == "" or not isinstance(tag, str):
         return "unknown"
     t = tag.strip().lower()
     if t in PAVED: return "paved"
