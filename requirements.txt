@@ -1,6 +1,12 @@
 geopandas
-pyrosm
+osmium
 shapely
 matplotlib
 contextily
 requests
+scipy
+numpy
+pandas
+rasterstats
+wbgapi
+pyyaml
