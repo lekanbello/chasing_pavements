@@ -1,0 +1,42 @@
+# Senegal configuration
+# Note: Geofabrik bundles Senegal with Gambia in one PBF
+country_name: Senegal
+iso3: SEN
+year: 2019
+
+# Data paths
+osm_pbf: data/raw/senegal-and-gambia-latest.osm.pbf
+gadm_gpkg: data/raw/gadm41_SEN.gpkg
+gadm_layer: ADM_ADM_2
+worldpop_url: https://data.worldpop.org/GIS/Population/Global_2000_2020/2019/SEN/sen_ppp_2019.tif
+worldpop_path: data/raw/sen_ppp_2019.tif
+
+# Spatial
+utm_epsg: 32628  # UTM zone 28N (Senegal is ~12-17N, 12-17W)
+
+# Output paths
+roads_gpkg: data/processed/senegal_roads.gpkg
+admin_gpkg: data/processed/senegal_admin2.gpkg
+trade_costs_baseline: data/processed/senegal_trade_costs_baseline.npy
+trade_costs_counterfactual: data/processed/senegal_trade_costs_counterfactual.npy
+admin_names: data/processed/senegal_admin2_names.npy
+calibrated_gpkg: data/processed/senegal_calibrated.gpkg
+trade_shares: data/processed/senegal_baseline_trade_shares.npy
+model_params: data/processed/senegal_model_params.json
+counterfactual_gpkg: data/processed/senegal_counterfactual.gpkg
+counterfactual_results: data/processed/senegal_counterfactual_results.json
+
+# National GDP (current USD, 2019)
+national_gdp_fallback: 23578085184
+
+# Model parameters
+parameters:
+  theta: 5.0
+  kappa: 2.0
+  alpha: 0.65
+  sigma: 5.0
+
+# Cost multipliers
+cost_paved: 1.0
+cost_unpaved: 3.0
+cost_unknown: 2.0

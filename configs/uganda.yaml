@@ -1,0 +1,41 @@
+# Uganda configuration
+country_name: Uganda
+iso3: UGA
+year: 2019
+
+# Data paths
+osm_pbf: data/raw/uganda-latest.osm.pbf
+gadm_gpkg: data/raw/gadm41_UGA.gpkg
+gadm_layer: ADM_ADM_2
+worldpop_url: https://data.worldpop.org/GIS/Population/Global_2000_2020/2019/UGA/uga_ppp_2019.tif
+worldpop_path: data/raw/uga_ppp_2019.tif
+
+# Spatial
+utm_epsg: 32636  # UTM zone 36N
+
+# Output paths
+roads_gpkg: data/processed/uganda_roads.gpkg
+admin_gpkg: data/processed/uganda_admin2.gpkg
+trade_costs_baseline: data/processed/uganda_trade_costs_baseline.npy
+trade_costs_counterfactual: data/processed/uganda_trade_costs_counterfactual.npy
+admin_names: data/processed/uganda_admin2_names.npy
+calibrated_gpkg: data/processed/uganda_calibrated.gpkg
+trade_shares: data/processed/uganda_baseline_trade_shares.npy
+model_params: data/processed/uganda_model_params.json
+counterfactual_gpkg: data/processed/uganda_counterfactual.gpkg
+counterfactual_results: data/processed/uganda_counterfactual_results.json
+
+# National GDP (current USD, 2019)
+national_gdp_fallback: 35165156842
+
+# Model parameters
+parameters:
+  theta: 5.0
+  kappa: 2.0
+  alpha: 0.65
+  sigma: 5.0
+
+# Cost multipliers
+cost_paved: 1.0
+cost_unpaved: 3.0
+cost_unknown: 2.0
