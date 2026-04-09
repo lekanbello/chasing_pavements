@@ -43,12 +43,14 @@ def build_config(row):
         "country_name": row["country_name"],
         "iso3": iso,
         "year": YEAR,
-        # Input paths
+        # Input paths + download URLs
         "osm_pbf": f"data/raw/{row['geofabrik_filename']}",
+        "osm_pbf_url": f"https://download.geofabrik.de/africa/{row['geofabrik_filename']}",
         "gadm_gpkg": f"data/raw/gadm41_{iso}.gpkg",
+        "gadm_gpkg_url": f"https://geodata.ucdavis.edu/gadm/gadm4.1/gpkg/gadm41_{iso}.gpkg",
         "gadm_layer": row.get("gadm_layer", "ADM_ADM_2"),
-        "worldpop_url": f"https://data.worldpop.org/GIS/Population/Global_2000_2020/{YEAR}/{iso}/{iso_lower}_ppp_{YEAR}.tif",
         "worldpop_path": f"data/raw/{iso_lower}_ppp_{YEAR}.tif",
+        "worldpop_url": f"https://data.worldpop.org/GIS/Population/Global_2000_2020/{YEAR}/{iso}/{iso_lower}_ppp_{YEAR}.tif",
         # Spatial
         "utm_epsg": int(row["utm_epsg"]),
         # Output paths

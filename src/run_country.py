@@ -96,8 +96,8 @@ def phase1_extract_roads(cfg):
     utm = cfg["utm_epsg"]
 
     # Auto-download PBF if missing
-    geofabrik_url = f"https://download.geofabrik.de/africa/{os.path.basename(pbf)}"
-    ensure_file(pbf, geofabrik_url, f"{cfg['country_name']} OSM PBF")
+    pbf_url = cfg.get("osm_pbf_url", f"https://download.geofabrik.de/africa/{os.path.basename(pbf)}")
+    ensure_file(pbf, pbf_url, f"{cfg['country_name']} OSM PBF")
 
     print(f"\n{'='*60}")
     print(f"PHASE 1: Extracting roads from {os.path.basename(pbf)}")
@@ -173,7 +173,7 @@ def phase2_trade_costs(cfg):
     ck = cfg["cost_unknown"]
 
     # Auto-download GADM if missing
-    gadm_url = f"https://geodata.ucdavis.edu/gadm/gadm4.1/gpkg/gadm41_{cfg['iso3']}.gpkg"
+    gadm_url = cfg.get("gadm_gpkg_url", f"https://geodata.ucdavis.edu/gadm/gadm4.1/gpkg/gadm41_{cfg['iso3']}.gpkg")
     ensure_file(gadm, gadm_url, f"{cfg['country_name']} GADM boundaries")
 
     print(f"\n{'='*60}")
