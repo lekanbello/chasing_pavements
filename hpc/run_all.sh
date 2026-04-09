@@ -11,9 +11,9 @@
 #SBATCH --array=0-47%10
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=128GB
-#SBATCH --time=08:00:00
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=32GB
+#SBATCH --time=02:00:00
 #SBATCH --output=/scratch/%u/chasing_pavements/logs/country_%A_%a.out
 #SBATCH --error=/scratch/%u/chasing_pavements/logs/country_%A_%a.err
 #SBATCH --mail-type=END,FAIL
