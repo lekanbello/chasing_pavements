@@ -72,9 +72,7 @@ def run_regression(gaps, dists, yms, label):
 
 def estimate_kenya():
     """Kenya: RTFP dataset, 234 markets."""
-    rtfp_path = ('/Users/olalekanbello/Dropbox/Nigeria Exchange Rate Shared/'
-                 '_Essential_Files/Nigeria_Revised_Paper_JIE/Data/World Bank/'
-                 'WLD_RTFP_mkt_2026-03-24.csv')
+    rtfp_path = 'data/raw/rtfp_prices.csv'
 
     if not os.path.exists(rtfp_path):
         print("  RTFP dataset not found, skipping Kenya")

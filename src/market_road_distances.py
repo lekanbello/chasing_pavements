@@ -33,9 +33,7 @@ from scipy.sparse.csgraph import shortest_path, connected_components
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 from country_config import get_config_by_iso3
 
-RTFP_PATH = ('/Users/olalekanbello/Dropbox/Nigeria Exchange Rate Shared/'
-             '_Essential_Files/Nigeria_Revised_Paper_JIE/Data/World Bank/'
-             'WLD_RTFP_mkt_2026-03-24.csv')
+RTFP_PATH = 'data/raw/rtfp_prices.csv'
 
 ROAD_CLASSES = {
     "motorway", "motorway_link", "trunk", "trunk_link",

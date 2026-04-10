@@ -3,6 +3,7 @@ data/raw/*.osm.pbf
 data/raw/*.tif
 data/raw/bfi_gdp_025deg/
 data/raw/*.zip
+data/raw/rtfp_prices.csv
 data/processed/*.gpkg
 data/processed/*.npy
 
