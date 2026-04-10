@@ -1,0 +1,14 @@
+{
+  "country": "Cote d Ivoire",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 32,
+  "n_total": 33,
+  "welfare_pct": 2.564322595878643,
+  "welfare_s1_pct": 12.829090392371922
+}

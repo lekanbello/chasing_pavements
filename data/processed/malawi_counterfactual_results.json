@@ -1,0 +1,14 @@
+{
+  "country": "Malawi",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 236,
+  "n_total": 256,
+  "welfare_pct": 37.180209843854286,
+  "welfare_s1_pct": 70.3439862788823
+}

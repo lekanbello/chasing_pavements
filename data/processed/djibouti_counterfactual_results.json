@@ -1,0 +1,14 @@
+{
+  "country": "Djibouti",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 20,
+  "n_total": 21,
+  "welfare_pct": 6.067247361219641,
+  "welfare_s1_pct": 13.7407699210232
+}

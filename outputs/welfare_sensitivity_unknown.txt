@@ -1,0 +1,12 @@
+Welfare Sensitivity to Unknown Road Classification
+Country: Tanzania
+==================================================
+
+Baseline (unknown=2.0): d_hat=0.6969
+unknown=2.5, 5% of route: d_hat=0.6921
+unknown=2.5, 10% of route: d_hat=0.6873
+unknown=2.8 (Liu), 5% of route: d_hat=0.6892
+unknown=2.8 (Liu), 10% of route: d_hat=0.6817
+unknown=3.0, 5% of route: d_hat=0.6873
+unknown=3.0, 10% of route: d_hat=0.6781
+unknown=3.0, 19% of route: d_hat=0.6621

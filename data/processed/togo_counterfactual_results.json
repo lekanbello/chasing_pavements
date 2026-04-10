@@ -1,0 +1,14 @@
+{
+  "country": "Togo",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 39,
+  "n_total": 40,
+  "welfare_pct": 11.639841345743163,
+  "welfare_s1_pct": 29.046947045260584
+}

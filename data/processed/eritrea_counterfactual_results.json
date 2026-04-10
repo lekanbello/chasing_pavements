@@ -1,0 +1,14 @@
+{
+  "country": "Eritrea",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 44,
+  "n_total": 50,
+  "welfare_pct": NaN,
+  "welfare_s1_pct": NaN
+}

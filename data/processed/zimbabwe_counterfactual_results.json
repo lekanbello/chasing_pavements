@@ -1,0 +1,14 @@
+{
+  "country": "Zimbabwe",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 90,
+  "n_total": 91,
+  "welfare_pct": 6.95383085903436,
+  "welfare_s1_pct": 26.843416083671933
+}

@@ -1,0 +1,52 @@
+Price-Distance Regression: KEN
+Road network distances from Dijkstra's algorithm
+==================================================
+
+Maize × Road network (time FE)
+  δ = 0.00030279/km (t=916.3), R²=0.1709
+  Scale = 3303 km, N = 4,072,536
+
+Maize × Road network (origin-time FE)
+  δ = 0.00031955/km (t=981.4), R²=0.1913
+  Scale = 3129 km, N = 4,072,536
+
+Maize × Straight-line (time FE)
+  δ = 0.00041152/km (t=940.9), R²=0.1786
+  Scale = 2430 km, N = 4,072,536
+
+Beans × Road network (time FE)
+  δ = 0.00005263/km (t=385.0), R²=0.0351
+  Scale = 19000 km, N = 4,072,536
+
+Beans × Road network (origin-time FE)
+  δ = 0.00006393/km (t=484.3), R²=0.0545
+  Scale = 15642 km, N = 4,072,536
+
+Beans × Straight-line (time FE)
+  δ = 0.00006667/km (t=366.2), R²=0.0319
+  Scale = 15000 km, N = 4,072,536
+
+Goat livestock × Road network (time FE)
+  δ = 0.00024101/km (t=809.8), R²=0.1387
+  Scale = 4149 km, N = 4,072,536
+
+Goat livestock × Road network (origin-time FE)
+  δ = 0.00024680/km (t=875.5), R²=0.1584
+  Scale = 4052 km, N = 4,072,536
+
+Goat livestock × Straight-line (time FE)
+  δ = 0.00025206/km (t=618.3), R²=0.0858
+  Scale = 3967 km, N = 4,072,536
+
+Food price index × Road network (time FE)
+  δ = 0.00022317/km (t=797.7), R²=0.1351
+  Scale = 4481 km, N = 4,072,536
+
+Food price index × Road network (origin-time FE)
+  δ = 0.00022905/km (t=863.1), R²=0.1546
+  Scale = 4366 km, N = 4,072,536
+
+Food price index × Straight-line (time FE)
+  δ = 0.00023397/km (t=611.1), R²=0.0840
+  Scale = 4274 km, N = 4,072,536
+

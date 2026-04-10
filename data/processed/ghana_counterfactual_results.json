@@ -1,0 +1,14 @@
+{
+  "country": "Ghana",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 257,
+  "n_total": 260,
+  "welfare_pct": 25.663581041583573,
+  "welfare_s1_pct": 50.56571014138762
+}

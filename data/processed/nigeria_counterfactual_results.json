@@ -1,0 +1,14 @@
+{
+  "country": "Nigeria",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 755,
+  "n_total": 775,
+  "welfare_pct": 25.442638403797368,
+  "welfare_s1_pct": 42.76387145801088
+}

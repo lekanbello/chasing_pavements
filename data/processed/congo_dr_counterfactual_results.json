@@ -1,0 +1,14 @@
+{
+  "country": "Congo DR",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 217,
+  "n_total": 240,
+  "welfare_pct": 53.51873869920092,
+  "welfare_s1_pct": 89.4427332008934
+}

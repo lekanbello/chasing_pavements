@@ -1,0 +1,14 @@
+{
+  "country": "Equatorial Guinea",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 29,
+  "n_total": 32,
+  "welfare_pct": 17.711124737261418,
+  "welfare_s1_pct": 38.16027907324535
+}

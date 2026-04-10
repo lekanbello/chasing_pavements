@@ -34,3 +34,7 @@ logs/
 *.out
 *.err
 chasing_env/
+data/raw/*.rar
+data/raw/liu_et_al_*/
+data/raw/gadm41_*.gpkg
+~$*

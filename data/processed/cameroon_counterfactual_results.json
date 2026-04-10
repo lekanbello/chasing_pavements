@@ -1,0 +1,14 @@
+{
+  "country": "Cameroon",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 56,
+  "n_total": 58,
+  "welfare_pct": 14.713078957410453,
+  "welfare_s1_pct": 20.53684189649756
+}

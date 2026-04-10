@@ -1,0 +1,14 @@
+{
+  "country": "Ethiopia",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 76,
+  "n_total": 79,
+  "welfare_pct": 15.853521917365665,
+  "welfare_s1_pct": 39.19290389252615
+}

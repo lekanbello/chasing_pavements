@@ -1,5 +1,4 @@
 {
-  "counterfactual": "pave_all_roads",
   "country": "Tanzania",
   "year": 2019,
   "parameters": {
@@ -8,8 +7,8 @@
     "alpha": 0.65,
     "sigma": 5.0
   },
-  "n_districts": 158,
-  "welfare_pct": 34.347867276764575,
-  "welfare_cv": 3.0509762042149563e-10,
-  "gdp_pct": -0.8952111099735482
+  "n_districts": 160,
+  "n_total": 186,
+  "welfare_pct": 33.687529724802175,
+  "welfare_s1_pct": 48.06143019710032
 }

@@ -1,0 +1,14 @@
+{
+  "country": "Zambia",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 111,
+  "n_total": 115,
+  "welfare_pct": 21.055801529762096,
+  "welfare_s1_pct": 35.64793891684748
+}

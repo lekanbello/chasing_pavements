@@ -1,0 +1,14 @@
+{
+  "country": "Sierra Leone",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 14,
+  "n_total": 14,
+  "welfare_pct": 3.1129461697418037,
+  "welfare_s1_pct": 16.31815475139746
+}

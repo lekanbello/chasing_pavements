@@ -1,0 +1,14 @@
+{
+  "country": "Sudan",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 79,
+  "n_total": 80,
+  "welfare_pct": 21.975771163980085,
+  "welfare_s1_pct": 35.19837820168637
+}

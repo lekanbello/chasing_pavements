@@ -1,0 +1,14 @@
+{
+  "country": "Gabon",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 27,
+  "n_total": 37,
+  "welfare_pct": 14.412417638531295,
+  "welfare_s1_pct": 34.83898339342362
+}

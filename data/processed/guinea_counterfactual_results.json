@@ -1,0 +1,14 @@
+{
+  "country": "Guinea",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 30,
+  "n_total": 34,
+  "welfare_pct": 12.861927117412186,
+  "welfare_s1_pct": 20.226297873429466
+}

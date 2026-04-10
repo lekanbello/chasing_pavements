@@ -1,0 +1,14 @@
+{
+  "country": "South Africa",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 51,
+  "n_total": 52,
+  "welfare_pct": 0.6346948648417117,
+  "welfare_s1_pct": 3.1142728431772904
+}

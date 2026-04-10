@@ -1,0 +1,14 @@
+{
+  "country": "Uganda",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 158,
+  "n_total": 166,
+  "welfare_pct": 28.389891672636523,
+  "welfare_s1_pct": 45.654301931235764
+}

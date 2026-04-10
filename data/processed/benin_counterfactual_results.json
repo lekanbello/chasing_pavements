@@ -1,0 +1,14 @@
+{
+  "country": "Benin",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 72,
+  "n_total": 78,
+  "welfare_pct": 16.457803216539357,
+  "welfare_s1_pct": 44.98380311614778
+}

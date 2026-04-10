@@ -1,0 +1,14 @@
+{
+  "country": "Kenya",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 298,
+  "n_total": 300,
+  "welfare_pct": 30.678050451570392,
+  "welfare_s1_pct": 63.43809757401597
+}

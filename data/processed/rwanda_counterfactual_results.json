@@ -1,0 +1,14 @@
+{
+  "country": "Rwanda",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 30,
+  "n_total": 30,
+  "welfare_pct": 3.6002534745189996,
+  "welfare_s1_pct": 10.272341171062704
+}

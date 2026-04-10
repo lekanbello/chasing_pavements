@@ -1,0 +1,9 @@
+Seasonal Price Dispersion Analysis: Kenya
+==================================================
+
+Maize regression (n=6,243,468, year FE):
+  Distance:      beta=0.000371 (t=788.8)
+  Wet season:    beta=0.001707 (t=5.4)
+  Wet x Dist:    beta=0.000012 (t=18.2)
+
+  Wet/dry distance ratio: 1.03x

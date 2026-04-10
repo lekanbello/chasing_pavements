@@ -1,0 +1,14 @@
+{
+  "year": 2019,
+  "national_gdp_usd": NaN,
+  "total_population": 4089730.5791015625,
+  "n_districts": 50,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "trade_cost_scale": 153.11403500221058,
+  "median_pi_nn": NaN
+}

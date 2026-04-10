@@ -1,0 +1,14 @@
+{
+  "country": "Somalia",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 73,
+  "n_total": 74,
+  "welfare_pct": 54.451728323651906,
+  "welfare_s1_pct": 75.33060833373915
+}

@@ -1,0 +1,14 @@
+{
+  "country": "Namibia",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 103,
+  "n_total": 107,
+  "welfare_pct": 29.02596126648056,
+  "welfare_s1_pct": 63.783417344947836
+}

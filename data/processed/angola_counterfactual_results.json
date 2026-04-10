@@ -1,0 +1,14 @@
+{
+  "country": "Angola",
+  "year": 2019,
+  "parameters": {
+    "theta": 5.0,
+    "kappa": 2.0,
+    "alpha": 0.65,
+    "sigma": 5.0
+  },
+  "n_districts": 163,
+  "n_total": 163,
+  "welfare_pct": 20.391863183844762,
+  "welfare_s1_pct": 60.553365043204145
+}
