@@ -162,7 +162,7 @@ def collect_data_summary():
         print(f"\nData summary: {len(df)} countries → {out_path}")
 
         # Print road coverage ranking
-        has_roads = df[df["osm_coverage_pct"] != ""].copy()
+        has_roads = df[df.get("osm_coverage_pct", pd.Series(dtype=str)).notna() & (df.get("osm_coverage_pct", pd.Series(dtype=str)) != "")].copy() if "osm_coverage_pct" in df.columns else pd.DataFrame()
         if len(has_roads) > 0:
             has_roads["osm_coverage_pct"] = has_roads["osm_coverage_pct"].astype(float)
             has_roads = has_roads.sort_values("osm_coverage_pct", ascending=False)
