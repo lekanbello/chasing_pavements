@@ -14,11 +14,12 @@ rsync -avz --progress \
   "${HPC}:${HPC_ROOT}/outputs/ssa_*.csv" \
   "./outputs/" 2>/dev/null
 
-# Per-country result JSONs and param files
+# Per-country result JSONs, param files, and road summaries
 rsync -avz --progress \
   "${HPC}:${HPC_ROOT}/data/processed/*_counterfactual_results.json" \
   "${HPC}:${HPC_ROOT}/data/processed/*_model_params.json" \
   "${HPC}:${HPC_ROOT}/data/processed/*_run_status.json" \
+  "${HPC}:${HPC_ROOT}/data/processed/*_road_summary.json" \
   "./data/processed/" 2>/dev/null
 
 # Sensitivity outputs

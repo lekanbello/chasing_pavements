@@ -112,14 +112,26 @@ def phase1_extract_roads(cfg):
     gdf["length_km"] = gdf.to_crs(f"EPSG:{utm}").geometry.length / 1000.0
 
     total_km = gdf["length_km"].sum()
+    road_stats = {"total_segments": len(gdf), "total_km": total_km}
     for sc in ["paved", "unpaved", "unknown"]:
         km = gdf.loc[gdf["surface_class"] == sc, "length_km"].sum()
-        print(f"  {sc:10s}: {km:>10,.0f} km ({100*km/total_km:.1f}%)")
+        road_stats[f"{sc}_km"] = km
+        road_stats[f"{sc}_pct"] = 100 * km / total_km if total_km > 0 else 0
+        print(f"  {sc:10s}: {km:>10,.0f} km ({road_stats[f'{sc}_pct']:.1f}%)")
+    road_stats["osm_coverage_pct"] = 100 - road_stats["unknown_pct"]
     print(f"  {'TOTAL':10s}: {total_km:>10,.0f} km")
+    print(f"  OSM surface coverage: {road_stats['osm_coverage_pct']:.1f}%")
 
     os.makedirs(os.path.dirname(out), exist_ok=True)
     gdf.to_file(out, driver="GPKG")
+
+    # Save road summary JSON for collect_results.py
+    name_lower = cfg["country_name"].lower().replace(" ", "_").replace("'", "")
+    summary_path = f"data/processed/{name_lower}_road_summary.json"
+    with open(summary_path, "w") as f:
+        json.dump(road_stats, f, indent=2)
     print(f"  Saved: {out}")
+    print(f"  Saved: {summary_path}")
     return gdf
 
 

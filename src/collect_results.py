@@ -109,34 +109,68 @@ def collect_model_results():
 
 
 def collect_data_summary():
-    """Collect road data summaries from model params files."""
+    """Collect road data and model summaries for all countries."""
     registry = load_registry()
     rows = []
 
     for _, country in registry.iterrows():
         cfg = build_config(country)
-        params_path = cfg["model_params"]
+        name_lower = country["country_name"].lower().replace(" ", "_").replace("'", "")
 
+        row = {
+            "country_name": country["country_name"],
+            "iso3": country["iso3"],
+            "region": country["region"],
+            "national_gdp_2019": country["national_gdp_2019"],
+        }
+
+        # Road summary (from Phase 1)
+        road_path = f"data/processed/{name_lower}_road_summary.json"
+        if os.path.exists(road_path):
+            with open(road_path) as f:
+                roads = json.load(f)
+            row.update({
+                "total_road_km": roads.get("total_km", ""),
+                "total_segments": roads.get("total_segments", ""),
+                "paved_km": roads.get("paved_km", ""),
+                "paved_pct": roads.get("paved_pct", ""),
+                "unpaved_km": roads.get("unpaved_km", ""),
+                "unpaved_pct": roads.get("unpaved_pct", ""),
+                "unknown_km": roads.get("unknown_km", ""),
+                "unknown_pct": roads.get("unknown_pct", ""),
+                "osm_coverage_pct": roads.get("osm_coverage_pct", ""),
+            })
+
+        # Model params (from Phase 3)
+        params_path = cfg["model_params"]
         if os.path.exists(params_path):
             with open(params_path) as f:
                 params = json.load(f)
-
-            rows.append({
-                "country_name": country["country_name"],
-                "iso3": country["iso3"],
-                "region": country["region"],
+            row.update({
                 "n_districts": params.get("n_districts", ""),
                 "total_population": params.get("total_population", ""),
-                "national_gdp": params.get("national_gdp_usd", ""),
                 "trade_cost_scale": params.get("trade_cost_scale", ""),
                 "median_pi_nn": params.get("median_pi_nn", ""),
             })
+
+        rows.append(row)
 
     if rows:
         df = pd.DataFrame(rows)
         out_path = os.path.join(OUTPUT_DIR, "ssa_data_summary.csv")
         df.to_csv(out_path, index=False)
-        print(f"Data summary: {len(df)} countries → {out_path}")
+        print(f"\nData summary: {len(df)} countries → {out_path}")
+
+        # Print road coverage ranking
+        has_roads = df[df["osm_coverage_pct"] != ""].copy()
+        if len(has_roads) > 0:
+            has_roads["osm_coverage_pct"] = has_roads["osm_coverage_pct"].astype(float)
+            has_roads = has_roads.sort_values("osm_coverage_pct", ascending=False)
+            print(f"\nOSM Surface Coverage Ranking:")
+            for _, r in has_roads.iterrows():
+                print(f"  {r['iso3']} {r['country_name']:<25s} {r['osm_coverage_pct']:>5.1f}%  "
+                      f"({r.get('paved_pct', '?'):.1f}% paved)")
+
         return df
     return None
 
