@@ -101,6 +101,7 @@ Quantitative spatial general equilibrium analysis measuring the GDP cost of unpa
 ## Identification / Robustness Notes
 - **Unobserved road quality bundle**: Cost ratio captures full bundle (surface + width + alignment). Frame as policy-relevant object.
 - **OSM vs Liu et al. validation**: 93.7% road-level agreement. OSM is conservative (lower paved rate).
+- **Unknown road sensitivity (full rebuild)**: Ran Phases 2-4 from scratch with cost_unknown = {1.0, 2.0, 3.0}. Tanzania welfare ranges from +26.3% (all unknown = paved) to +37.6% (all unknown = unpaved). Spread = 11 pp. Even the most optimistic assumption gives >25% welfare gain. Liu et al. suggests truth is near upper bound. Script: `src/sensitivity_unknown.py`.
 - **Cross-country validation**: Model ranking matches known infrastructure quality without being calibrated to it. South Africa, Botswana, Rwanda at bottom; Somalia, Congo DR at top.
 - **Trade cost normalization robustness**: Welfare stable (47-52%) across scale range 340-2654 km.
 - **σ×c sensitivity**: Full grid reported. Central estimate robust; extreme parameters give wide range.
