@@ -1,7 +1,7 @@
 # Chasing Pavements — Project Context
 
 ## What This Is
-Quantitative spatial general equilibrium analysis measuring the GDP cost of unpaved roads in Sub-Saharan Africa. Core counterfactual: how much higher would real GDP be if all unpaved roads were paved?
+Quantitative spatial general equilibrium analysis measuring the welfare cost of unpaved roads in Sub-Saharan Africa. Core counterfactual: how much higher would real income (welfare) be if all unpaved roads were paved? NOTE: The welfare gain is a real income / purchasing power measure (lower prices from cheaper trade), NOT a nominal GDP increase. Be precise about this distinction.
 
 ## Research Design Decisions Made
 - **Framing**: Hook into Akbar, Couture, Duranton & Storeygard (2023) "unobserved road quality" residual. They show road quality explains large share of speed differences across countries but can't decompose it. We show surface type (paved vs unpaved) is a first-order component.
@@ -19,8 +19,9 @@ Quantitative spatial general equilibrium analysis measuring the GDP cost of unpa
 - **Phase 5 (Robustness/extensions)**: PARTIALLY DONE. σ×c sensitivity table complete for Tanzania. Trade cost scale sensitivity complete. Kenya and Tanzania price elasticity estimated. Remaining: Google Maps cost ratio, reduced-form evidence, optimal paving, wet/dry season.
 
 ## Headline Results (41 SSA Countries, placeholder c=3.0)
-- **Continental average welfare gain from full paving: ~20%**
+- **Continental average real income gain from full paving: ~20%**
 - **Range: +0.6% (South Africa) to +54.5% (Somalia)**
+- **These are welfare (real income) gains, not nominal GDP gains.** The mechanism is lower prices from reduced trade costs, not higher nominal output.
 - Top tier (>30%): Somalia, Congo DR, CAR, Malawi, Tanzania, Burundi, Kenya
 - High (15-30%): Liberia, Namibia, Uganda, Mozambique, Ghana, Nigeria, Chad, Niger, Sudan, Congo Rep, Zambia, Angola
 - Moderate (5-15%): Eq. Guinea, Benin, Mali, Ethiopia, Cameroon, Gabon, Guinea, Togo, Guinea-Bissau, Eswatini, Senegal, Zimbabwe
@@ -32,7 +33,7 @@ Quantitative spatial general equilibrium analysis measuring the GDP cost of unpa
 - **Road network**: 677,579 km, 2.2% paved, 66.5% unpaved, 31.3% unknown surface
 - **Connectivity**: 70.4% of admin-2 pairs connected through road network
 - **Trade costs**: Mean reduction from paving everything: 30.3%. Range: 0% to 66.7%.
-- **GE welfare gain**: ~34% with labor mobility, ~50% fixed population (Stage 1)
+- **GE real income (welfare) gain**: ~34% with labor mobility, ~50% fixed population (Stage 1)
 - **Sensitivity**: Welfare robust to trade cost normalization (47-52% across scale = 340-2654 km)
 - **σ×c sensitivity**: Welfare ranges from +4% (σ=7, c=2.0) to +64% (σ=3, c=4.0). Central: +44% (σ=5, c=3.0)
 - **Spatial pattern**: Remote western/southern Tanzania gains most; Dar es Salaam/Zanzibar lose (increased competition)
@@ -101,7 +102,7 @@ Quantitative spatial general equilibrium analysis measuring the GDP cost of unpa
 ## Identification / Robustness Notes
 - **Unobserved road quality bundle**: Cost ratio captures full bundle (surface + width + alignment). Frame as policy-relevant object.
 - **OSM vs Liu et al. validation**: 93.7% road-level agreement. OSM is conservative (lower paved rate).
-- **Unknown road sensitivity (full rebuild)**: Ran Phases 2-4 from scratch with cost_unknown = {1.0, 2.0, 3.0}. Tanzania welfare ranges from +26.3% (all unknown = paved) to +37.6% (all unknown = unpaved). Spread = 11 pp. Even the most optimistic assumption gives >25% welfare gain. Liu et al. suggests truth is near upper bound. Script: `src/sensitivity_unknown.py`.
+- **Unknown road sensitivity (full rebuild)**: Ran Phases 2-4 from scratch with cost_unknown = {1.0, 2.0, 3.0}. Tanzania real income gain ranges from +26.3% (all unknown = paved) to +37.6% (all unknown = unpaved). Spread = 11 pp. Even the most optimistic assumption gives >25% real income gain. Liu et al. suggests truth is near upper bound. Script: `src/sensitivity_unknown.py`.
 - **Cross-country validation**: Model ranking matches known infrastructure quality without being calibrated to it. South Africa, Botswana, Rwanda at bottom; Somalia, Congo DR at top.
 - **Trade cost normalization robustness**: Welfare stable (47-52%) across scale range 340-2654 km.
 - **σ×c sensitivity**: Full grid reported. Central estimate robust; extreme parameters give wide range.
