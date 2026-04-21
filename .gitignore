@@ -4,6 +4,12 @@ data/raw/*.tif
 data/raw/bfi_gdp_025deg/
 data/raw/*.zip
 data/raw/rtfp_prices.csv
+
+# Secrets — NEVER commit
+.env
+.env.*
+*_api_key*
+secrets/
 data/processed/*.gpkg
 data/processed/*.npy
 
