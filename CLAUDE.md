@@ -112,7 +112,17 @@ Quantitative spatial general equilibrium analysis measuring the welfare cost of 
 - Use Routes API Compute Route Matrix (Essentials tier for free-flow duration)
 - ~$2K for 500K OD pairs, 3K elements/min rate limit
 - Returns both `duration` (free-flow) and `duration_in_traffic`
-- Research credits CANNOT be used for Maps Platform
+- User HAS academic research credits — money is not a constraint
+- API key saved in `.env` (gitignored). 51 of 10K free elements used.
+
+## Google Maps Validation Results (April 2026)
+- Ran 4 test scripts (`src/gmaps_test*.py`) to validate OSM surface classifications
+- **Key finding**: When Google is forced to use specific OSM road segments (by querying their exact endpoints), paved roads are ~20% faster than unpaved roads
+- Pooled across 50 queries in Tanzania (trunk/primary/secondary): paved ~66 km/h, unpaved ~55 km/h, ratio 1.20x
+- v3 script (trunk-only, 5+5): 1.39x. v4 (larger, mixed classes): 1.17-1.32x
+- **Interpretation**: Speed ratio is a lower bound on cost ratio `c`. Total economic cost also includes vehicle wear, fuel, reliability, spoilage — consistent with `c` of 2-3.
+- **Validation**: OSM surface tags and Google's driver speeds agree on which roads are fast vs slow. Two independent data sources converge.
+- Earlier tests failed because: (v1) hand-picked "unpaved" routes have been paved in last decade, (v2) centroid-to-centroid lets Google route around unpaved roads. Lesson: force Google onto specific segments by querying OSM segment endpoints.
 
 ## Next Steps (Priority Order)
 1. Donaldson-style cost ratio estimation (route decomposition + price data for Kenya)
