@@ -15,28 +15,26 @@ Quantitative spatial general equilibrium analysis measuring the welfare cost of 
 - **Phase 1 (Data ingestion)**: DONE for 41 countries. `src/run_country.py` auto-downloads OSM PBF, extracts road network, classifies surface types, saves road summary JSON.
 - **Phase 2 (Trade costs)**: DONE for 41 countries. Graph construction using OSM node IDs, bilateral Dijkstra shortest paths between admin-2 centroids. Baseline and counterfactual trade cost matrices.
 - **Phase 3 (Model calibration)**: DONE for 41 countries. WorldPop population + BFI subnational GDP aggregation. GE model inversion (Redding & Rossi-Hansberg 2017) to recover productivities and amenities.
-- **Phase 4 (Counterfactual analysis)**: DONE for 41 countries. Exact hat algebra (Eqs 18-21). Two-stage solver. Welfare gains range from +0.6% (South Africa) to +54.5% (Somalia).
-- **Phase 5 (Robustness/extensions)**: PARTIALLY DONE. σ×c sensitivity table complete for Tanzania. Trade cost scale sensitivity complete. Kenya and Tanzania price elasticity estimated. Remaining: Google Maps cost ratio, reduced-form evidence, optimal paving, wet/dry season.
+- **Phase 4 (Counterfactual analysis)**: v1 done for 41 countries (numbers obsolete after April 2026 audit; see `PIPELINE_AUDIT_2026-04-30.md`). v2 rerun pending.
+- **Phase 5 (Robustness/extensions)**: PARTIALLY DONE. σ×c sensitivity table (rewritten under v2; rerun pending). Trade cost scale sensitivity (rewritten under v2). Kenya and Tanzania price elasticity estimated. Remaining: Google Maps cost ratio, reduced-form evidence, optimal paving, wet/dry season.
 
-## Headline Results (41 SSA Countries, placeholder c=3.0)
-- **Continental average real income gain from full paving: ~20%**
-- **Range: +0.6% (South Africa) to +54.5% (Somalia)**
-- **These are welfare (real income) gains, not nominal GDP gains.** The mechanism is lower prices from reduced trade costs, not higher nominal output.
-- Top tier (>30%): Somalia, Congo DR, CAR, Malawi, Tanzania, Burundi, Kenya
-- High (15-30%): Liberia, Namibia, Uganda, Mozambique, Ghana, Nigeria, Chad, Niger, Sudan, Congo Rep, Zambia, Angola
-- Moderate (5-15%): Eq. Guinea, Benin, Mali, Ethiopia, Cameroon, Gabon, Guinea, Togo, Guinea-Bissau, Eswatini, Senegal, Zimbabwe
-- Low (<5%): Djibouti, Burkina Faso, Gambia, Botswana, Rwanda, Sierra Leone, Cote d'Ivoire, South Africa
-- **Model validation**: Countries known for good roads (South Africa, Botswana, Cote d'Ivoire, Rwanda) independently rank at the bottom — the ranking emerges from data, not assumptions
-- **Missing**: 7 island nations (disabled), 2 with no GDP data (Eritrea, South Sudan)
+## Headline Results — pending v2 rerun
 
-## Key Results (Tanzania Deep-Dive, placeholder c=3.0)
-- **Road network**: 677,579 km, 2.2% paved, 66.5% unpaved, 31.3% unknown surface
+**v1 numbers were rejected after the April 2026 audit (8 model bugs). The pre-rerun Tanzania smoke test under v2 gives Stage 2 welfare = +9.4% (down from v1's +34%) with welfare_cv = 0.0000 at convergence. Continental v2 numbers will be available after the HPC rerun.**
+
+The v1 ranking pattern (Somalia/DRC/CAR at top; South Africa/Rwanda/Botswana at bottom) is likely preserved qualitatively but not quantitatively.
+
+## Key Results (Tanzania Deep-Dive, post-audit v2)
+- **Road network**: 677,579 km, 2.2% paved, 66.5% unpaved, 31.3% unknown surface (unchanged — Phase 1/2 not affected by audit)
 - **Connectivity**: 70.4% of admin-2 pairs connected through road network
-- **Trade costs**: Mean reduction from paving everything: 30.3%. Range: 0% to 66.7%.
-- **GE real income (welfare) gain**: ~34% with labor mobility, ~50% fixed population (Stage 1)
-- **Sensitivity**: Welfare robust to trade cost normalization (47-52% across scale = 340-2654 km)
-- **σ×c sensitivity**: Welfare ranges from +4% (σ=7, c=2.0) to +64% (σ=3, c=4.0). Central: +44% (σ=5, c=3.0)
-- **Spatial pattern**: Remote western/southern Tanzania gains most; Dar es Salaam/Zanzibar lose (increased competition)
+- **Trade costs**: Mean iceberg-ratio reduction from paving everything: 22.9% (v2 d_hat formula).
+- **Welfare gains (v2 smoke test, three mobility regimes):**
+  - Stage 1 (no mobility, pre-incidence): aggregate +9.24%, range across districts [-0.0%, +31.9%], std 5.79
+  - Stage 2 (perfect mobility, headline): +9.44%, equalized across districts (CV = 0.0000)
+  - Stage 3 (frictional mobility, κ=2): aggregate +9.38%, range [+2.4%, +22.4%], std 3.72
+- **Stage 3 redistribution pattern**: top winners are remote mainland districts (Nyang'hwale, Pangani, Mkalama) gaining +18-22% with ~+16-26% in-migration; bottom are Zanzibar/Pemba islands and Lake Victoria's Ukerewe — they're disconnected from mainland paving and lose ~12% of population to better-connected mainland districts.
+- **Calibrated trade-cost scale**: 263 km (brentq-chosen so median π_nn = 0.4)
+- **σ×c sensitivity**: rewritten under v2; rerun pending
 - **Winners**: 150/158 districts gain; top gains are remote districts with mostly unpaved roads
 - **Losers**: 8 districts (urban centers facing more competition post-paving)
 
@@ -80,9 +78,15 @@ Quantitative spatial general equilibrium analysis measuring the welfare cost of 
 
 ## Technical Notes
 - Python 3.9.6 (local) / 3.11 (HPC), key packages: geopandas, osmium, scipy, matplotlib, rasterstats, wbgapi
-- GE model: Redding & Rossi-Hansberg (2017) with σ=5, α=0.65. Two-stage solver for stability.
-- Trade cost normalization: τ = 1 + distance/scale, where scale calibrated to give target π_nn
-- Counterfactual uses d_hat = tc_cf/tc_base (ratios only, no level normalization needed)
+- **GE model: Redding & Rossi-Hansberg (2017) Krugman-CES throughout.** σ=5 is the CES elasticity; trade elasticity is σ−1=4. α=0.65 (labor share). Two-stage solver (fixed pop → mobility) for stability.
+- **Calibration version v2-rrh-krugman-cse-row** (after April 2026 audit; see `PIPELINE_AUDIT_2026-04-30.md`). Trade-share matrix π is row-stochastic with `π[n, i]` = destination n's expenditure share on origin i. Equation: π_ni ∝ L_i × A_i^{σ-1} × (w_i^α × τ_ni)^{1-σ}. The source-employment factor `L_i` is essential — without it, the L̂ term in the hat-algebra trade-share update has nothing to rescale.
+- **Trade-cost scale calibration:** τ = 1 + distance/scale. Scale calibrated per country via `scipy.optimize.brentq` to hit median π_nn = 0.4 (R&RH benchmark, anchored to inter-state US trade). Common target across all 41 countries — this is an assumption; robustness to country-specific or empirically-anchored targets (e.g. Donaldson-style δ from price data) is a follow-up.
+- **Counterfactual d_hat:** d_hat = (1 + tc_cf/scale) / (1 + tc_base/scale), the iceberg-cost ratio τ'/τ. NOT the raw distance ratio — that was the v1 bug.
+- **Welfare aggregation:** R&RH 2017 Eq 21 evaluated location by location, then aggregated by population-weighted mean. At Stage 2 perfect-mobility convergence the cross-locational welfare CV → 0; we save `welfare_cv` to JSON and flag countries with CV > 0.05 as non-convergent.
+- **Three mobility regimes computed.** The solver runs three nested counterfactuals and saves all three to outputs:
+  - **Stage 1 (κ = 0, no mobility):** pre-mobility incidence — `welfare_s1_hat` per district. Used for "winners and losers" maps that show who benefits if no one moves.
+  - **Stage 2 (κ = ∞, perfect mobility) — HEADLINE:** welfare equalizes across locations by assumption; `welfare_pct` is the population-weighted mean. This is the default reported number.
+  - **Stage 3 (κ finite, R&RH frictional mobility):** migration update is `λ̂_n ∝ V̂_n^κ` rather than the perfect-mobility limit. Welfare varies across locations; in-migration partly equalizes gains. Default κ = 2.0 (PARAMS). Saved as `welfare_s3_pct` (aggregate) and `welfare_s3_hat` (per-location), with population shifts in `pop_s3_hat`.
 - Auto-download: run_country.py fetches missing PBF/GADM/WorldPop via curl
 - HPC: NYU Torch cluster, Slurm array jobs, 4 cores / 32 GB per country
 
@@ -102,11 +106,23 @@ Quantitative spatial general equilibrium analysis measuring the welfare cost of 
 ## Identification / Robustness Notes
 - **Unobserved road quality bundle**: Cost ratio captures full bundle (surface + width + alignment). Frame as policy-relevant object.
 - **OSM vs Liu et al. validation**: 93.7% road-level agreement. OSM is conservative (lower paved rate).
-- **Unknown road sensitivity (full rebuild)**: Ran Phases 2-4 from scratch with cost_unknown = {1.0, 2.0, 3.0}. Tanzania real income gain ranges from +26.3% (all unknown = paved) to +37.6% (all unknown = unpaved). Spread = 11 pp. Even the most optimistic assumption gives >25% real income gain. Liu et al. suggests truth is near upper bound. Script: `src/sensitivity_unknown.py`.
-- **Cross-country validation**: Model ranking matches known infrastructure quality without being calibrated to it. South Africa, Botswana, Rwanda at bottom; Somalia, Congo DR at top.
-- **Trade cost normalization robustness**: Welfare stable (47-52%) across scale range 340-2654 km.
-- **σ×c sensitivity**: Full grid reported. Central estimate robust; extreme parameters give wide range.
+- **Unknown road sensitivity (full rebuild)**: Script `src/sensitivity_unknown.py` re-runs Phases 2-4 from scratch with cost_unknown = {1.0, 2.0, 3.0}. (v1 numbers below are obsolete; rerun pending under v2.)
+- **Cross-country validation**: Model ranking matches known infrastructure quality without being calibrated to it. (v1 ranking pattern; v2 numbers pending rerun.)
+- **σ×c sensitivity**: Each cell fully re-calibrated under that σ in v2 (script `src/sensitivity_sigma_c.py` rewritten). v1 table is obsolete.
 - **Differentiation from Akbar et al.**: They study urban mobility; we study inter-city trade costs and aggregate welfare.
+
+## v1 → v2 audit and fixes (April 2026)
+A pipeline audit (`PIPELINE_AUDIT_2026-04-30.md`) caught 8 issues in the v1 calibration/counterfactual code that together overstated the headline welfare gain by roughly 6×. v2 fixes:
+1. Calibration switched from EK-style `A^θ × cost^{-θ}` (no source size) to R&RH Krugman-CES `L × A^{σ-1} × cost^{1-σ}` (Bug 7).
+2. π is now row-stochastic by construction (Bug 2).
+3. `d_hat` is the iceberg ratio `(1+tc'/s)/(1+tc/s)`, not the raw distance ratio (Bug 1).
+4. Headline welfare aggregation uses population-weighted mean; `welfare_cv` saved (Bug 4).
+5. Stage 1 welfare formula no longer has an extraneous ŵ factor (Bug 5).
+6. District-level welfare uses the full Eq 21 expression — same object as the headline (Bug 6).
+7. σ-sensitivity script re-inverts calibration per σ (Bug 3).
+8. Trade-cost scale calibrated per country via brentq on median π_nn = 0.4 (Bug 8).
+
+Pre-rerun Tanzania smoke test: Stage 2 welfare = +9.4% (vs v1's +34%); welfare_cv = 0.0000 at convergence. Full 41-country rerun pending.
 
 ## Google Maps API
 - Use Routes API Compute Route Matrix (Essentials tier for free-flow duration)

@@ -16,6 +16,7 @@ import geopandas as gpd
 import pandas as pd
 from rasterstats import zonal_stats
 from shapely.geometry import Point
+from scipy.optimize import brentq
 
 # ── Configuration ──────────────────────────────────────────────────────
 
@@ -33,13 +34,19 @@ OUTPUT_PARAMS = "data/processed/tanzania_model_params.json"
 # Year for all data
 YEAR = 2019
 
-# External model parameters (from literature)
+# External model parameters (Redding & Rossi-Hansberg 2017 Krugman-CES)
 PARAMS = {
-    "theta": 5.0,       # Trade elasticity (Eaton-Kortum), range 4-8
+    "sigma": 5.0,       # CES elasticity of substitution. Trade elasticity = σ-1.
     "kappa": 2.0,       # Migration elasticity (Fréchet shape), range 1.5-3
     "alpha": 0.65,      # Labor share in production, range 0.6-0.7
-    "sigma": 5.0,       # Elasticity of substitution, range 3-7
 }
+
+# Calibration target: median domestic trade share (R&RH-style benchmark; see CLAUDE.md)
+TARGET_MEDIAN_PI_NN = 0.4
+
+# Version marker so downstream readers can distinguish v1 (EK, column-stochastic)
+# from v2 (Krugman-CES, row-stochastic).
+CALIBRATION_VERSION = "v2-rrh-krugman-cse-row"
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -197,161 +204,177 @@ def aggregate_gdp(admin_gdf, population, bfi_dir, national_gdp, year=2019):
 # PART C: Model Inversion
 # ══════════════════════════════════════════════════════════════════════
 
-def prepare_trade_costs(tc_matrix, target_median_pi_nn=0.4):
+def prepare_distances(tc_matrix):
     """
-    Convert trade cost matrix to iceberg form for the model.
-
-    Input: matrix of weighted km distances
-    Output: matrix of iceberg trade costs τ_ij ≥ 1
-
-    The scale parameter is chosen so that the median domestic trade share
-    (π_nn) is approximately target_median_pi_nn. This is the standard
-    calibration approach when bilateral trade flow data is unavailable.
-
-    Uses τ_ij = 1 + distance_ij / scale, where scale is calibrated.
+    Pre-process the weighted-km trade-cost matrix:
+      • Replace inf (disconnected pairs) with 2× max-finite distance.
+      • Zero out the diagonal.
+    Returns the cleaned distance matrix. Scale calibration is separate
+    (see calibrate_scale_by_pi_nn).
     """
     tc = tc_matrix.copy()
     n = tc.shape[0]
-    finite_mask = np.isfinite(tc) & (tc > 0)
-
-    if not finite_mask.any():
+    finite = np.isfinite(tc) & (tc > 0)
+    if not finite.any():
         raise ValueError("No finite positive trade costs")
-
-    max_finite = tc[finite_mask].max()
-    # Disconnected pairs: high cost but not absurd
+    max_finite = tc[finite].max()
     tc[~np.isfinite(tc)] = max_finite * 2
     np.fill_diagonal(tc, 0)
-
-    # Calibrate scale so median τ gives target domestic trade share
-    # Higher scale → lower τ → more trade → lower π_nn
-    # With σ=5: π_nn ~ 0.4 when median τ ~ 5
-    off_diag = tc[~np.eye(n, dtype=bool) & (tc > 0)]
-    median_dist = np.median(off_diag)
-
-    # scale = median_distance / (target_median_tau - 1)
-    # We want median tau ~ 5 for π_nn ~ 0.4
-    target_median_tau = 5.0
-    scale = median_dist / (target_median_tau - 1.0)
-
-    tau = 1.0 + tc / scale
-    np.fill_diagonal(tau, 1.0)
-
-    off_diag_tau = tau[~np.eye(n, dtype=bool) & (tau > 1)]
-    print(f"  Trade cost scale: {scale:.0f} km")
-    print(f"  Iceberg τ: min={off_diag_tau.min():.2f}, median={np.median(off_diag_tau):.2f}, "
-          f"max={off_diag_tau.max():.2f}")
-
-    return tau, scale
+    return tc
 
 
-def invert_model(L, Y, tau, theta, kappa, alpha, max_iter=5000, tol=1e-4):
+def _build_pi_and_invert(L, Y, tau, sigma, alpha, max_iter=5000, tol=1e-4,
+                         verbose=True):
     """
-    Invert the spatial GE model to recover productivities and amenities.
+    Inner Krugman-CES inversion. Given iceberg τ, solve for productivities A
+    and the row-stochastic trade-share matrix π[n, i] = destination n's
+    expenditure share on origin i.
 
-    Following Allen & Arkolakis (2014) / Redding (2016):
+    Trade-share (R&RH 2017 Eq 9, Krugman-CES):
+        π[n, i]  ∝  L_i × A_i^{σ-1} × (w_i^α × τ_ni)^{1-σ}
 
-    Given observed {L_i, Y_i} and trade costs {τ_ij}, recover {A_i, a_i}
-    that rationalize the data as a competitive equilibrium.
+    Index convention: rows = destination n, cols = origin i.
 
-    Model equations:
-    - Wages: w_i = Y_i / L_i
-    - Trade shares: π_ij = (w_i × τ_ij)^{-θ} / Σ_k (w_k × τ_kj)^{-θ}
-      (In EK model, trade shares depend on costs of sourcing from i to j)
-    - Price index: P_j^{-θ} = Σ_i A_i^θ × (w_i × τ_ij)^{-θ}
-    - Market clearing: Y_i = Σ_j π_ij × E_j
-    - Migration: L_j ∝ (w_j × a_j / P_j)^κ
+    Market clearing: Y_i = Σ_n π[n, i] × Y_n  ⇒  Y_pred = π.T @ Y.
 
-    Inversion:
-    1. Compute wages from data
-    2. Compute trade shares from wages and trade costs
-    3. Recover A_i from market clearing
-    4. Compute P_j from A_i and trade costs
-    5. Recover a_j from migration equation
+    Updates A_i so that Y_pred matches observed Y. Dampened fixed point.
     """
     n = len(L)
-    print(f"\nInverting GE model for {n} locations...")
-    print(f"  Parameters: θ={theta}, κ={kappa}, α={alpha}")
+    s_minus_1 = sigma - 1.0
 
-    # Step 1: Wages
-    w = Y / L
-    w = np.maximum(w, 1e-10)  # floor for numerical stability
+    # Wages
+    w = Y / np.maximum(L, 1e-10)
+    w = np.maximum(w, 1e-10)
 
-    print(f"  Wages: min=${w.min():,.0f}  max=${w.max():,.0f}  ratio={w.max()/w.min():.1f}")
-
-    # Step 2: Trade shares π_ij
-    # π_ij = prob that j buys from i
-    # In EK: π_ij ∝ (c_i × τ_ij)^{-θ} where c_i is unit cost in i
-    # With CD production: c_i ∝ w_i^α / A_i
-    # For inversion, we first compute trade shares assuming equal A_i,
-    # then iterate to recover A_i
-
-    # Initialize productivities proportional to GDP per capita
+    # Initialize productivities ∝ GDP per capita
     A = (Y / L) / np.median(Y / L)
     A = np.maximum(A, 1e-10)
 
-    print("  Iterating to recover productivities...")
+    # cost[n, i] = w_i^α × τ_ni  (origin's input cost × shipping cost from i to n)
+    # τ is symmetric (distance-based) but we keep the [n, i] indexing explicit.
+    w_alpha_origin = (w**alpha)[np.newaxis, :]      # shape (1, n) — origin axis
+    cost = tau * w_alpha_origin                      # shape (n, n) [destination, origin]
 
+    cost_pow = cost**(1.0 - sigma)                   # constant across iterations
+
+    diff = np.inf
     for iteration in range(max_iter):
         A_old = A.copy()
 
-        # Compute trade cost term: (A_i^{1/α} × τ_ij)^{-θ}
-        # For each destination j, the denominator Φ_j = Σ_i (A_i / (w_i^α × τ_ij))^θ
-        # Simplify: use (A_i × τ_ij^{-1})^θ × w_i^{-αθ}
+        # Source-size × productivity term, broadcast on origin axis
+        L_A = (L * A**s_minus_1)[np.newaxis, :]      # shape (1, n)
+        numerator = L_A * cost_pow                   # shape (n, n)
+        denom = numerator.sum(axis=1, keepdims=True)
+        denom = np.maximum(denom, 1e-300)
+        pi = numerator / denom                       # rows sum to 1
 
-        # Trade shares: π_ij = A_i^θ × (w_i × τ_ij)^{-θ} / Φ_j
-        # where Φ_j = Σ_k A_k^θ × (w_k × τ_kj)^{-θ}
+        # Market clearing: Y_i = Σ_n π[n, i] × Y_n
+        Y_pred = pi.T @ Y
 
-        # Compute cost matrix: cost_ij = w_i^α × τ_ij (cost of sourcing from i to j)
-        cost = np.outer(w**alpha, np.ones(n)) * tau
-
-        # Trade competitiveness: T_i = A_i^theta × cost_ij^{-theta}
-        # For each i,j pair
-        numerator = np.outer(A**theta, np.ones(n)) * cost**(-theta)
-
-        # Denominator: Φ_j = Σ_i numerator_ij
-        Phi = numerator.sum(axis=0)
-        Phi = np.maximum(Phi, 1e-300)
-
-        # Trade shares
-        pi = numerator / Phi[np.newaxis, :]
-
-        # Market clearing: Y_i = Σ_j π_ij × Y_j
-        Y_predicted = pi @ Y
-
-        # Update A to match observed Y with dampening for stability
-        # Y_predicted_i ∝ A_i^θ, so A_i_new = A_i × (Y_i / Y_predicted_i)^{1/θ}
-        ratio = Y / np.maximum(Y_predicted, 1e-10)
-        dampen = 0.3  # slow updates to prevent oscillation
-        A = A * ratio**(dampen / theta)
+        ratio = Y / np.maximum(Y_pred, 1e-10)
+        dampen = 0.3
+        A = A * ratio**(dampen / s_minus_1)
         A = np.maximum(A, 1e-10)
 
-        # Check convergence
-        diff = np.max(np.abs(np.log(A) - np.log(A_old)))
-        if iteration % 100 == 0 or diff < tol:
+        diff = float(np.max(np.abs(np.log(A) - np.log(A_old))))
+        if verbose and (iteration % 100 == 0 or diff < tol):
             print(f"    Iteration {iteration}: max |Δlog(A)| = {diff:.2e}")
-
         if diff < tol:
-            print(f"  Converged at iteration {iteration}")
+            if verbose:
+                print(f"  Converged at iteration {iteration}")
             break
     else:
-        print(f"  WARNING: Did not converge after {max_iter} iterations (diff={diff:.2e})")
+        if verbose:
+            print(f"  WARNING: Did not converge after {max_iter} iterations (diff={diff:.2e})")
 
-    # Step 3: Price indices
-    # P_j^{-θ} = Φ_j = Σ_i A_i^θ × (w_i × τ_ij)^{-θ}
-    P = Phi**(-1.0 / theta)
+    # Final π build with the converged A
+    L_A = (L * A**s_minus_1)[np.newaxis, :]
+    numerator = L_A * cost_pow
+    denom = numerator.sum(axis=1, keepdims=True)
+    pi = numerator / np.maximum(denom, 1e-300)
+
+    # Price index: from CES, P_n^{1-σ} = Σ_i L_i × A_i^{σ-1} × (w_i^α × τ_ni)^{1-σ} = denom_n
+    P = denom.flatten()**(1.0 / (1.0 - sigma))
+
+    return A, pi, P, diff
+
+
+def calibrate_scale_by_pi_nn(L, Y, distances, sigma, alpha,
+                             target=TARGET_MEDIAN_PI_NN,
+                             bracket=(50.0, 50000.0)):
+    """
+    Find scale ∈ [bracket_lo, bracket_hi] such that median(diag(π)) ≈ target,
+    where π is the row-stochastic Krugman-CES trade-share matrix.
+
+    Returns (scale, calibration_status) where calibration_status is "exact",
+    "fallback_lo", or "fallback_hi".
+    """
+    def median_pi_nn(scale):
+        tau = 1.0 + distances / scale
+        np.fill_diagonal(tau, 1.0)
+        _, pi, _, _ = _build_pi_and_invert(
+            L, Y, tau, sigma, alpha, max_iter=2000, tol=1e-3, verbose=False
+        )
+        return float(np.median(np.diag(pi)))
+
+    lo, hi = bracket
+    f_lo = median_pi_nn(lo) - target    # at small scale, τ huge → π_nn → 1 → f_lo > 0
+    f_hi = median_pi_nn(hi) - target    # at large scale, τ → 1   → π_nn → small → f_hi < 0
+
+    if f_lo > 0 and f_hi < 0:
+        scale = brentq(lambda s: median_pi_nn(s) - target, lo, hi, xtol=1.0)
+        return scale, "exact"
+    elif f_hi >= 0:
+        # Even with maximum scale, can't get π_nn down to target
+        print(f"  WARNING: median π_nn={f_hi+target:.3f} > target={target} at max scale={hi}")
+        return hi, "fallback_hi"
+    else:
+        # Even with minimum scale, π_nn already below target (very disconnected network)
+        print(f"  WARNING: median π_nn={f_lo+target:.3f} < target={target} at min scale={lo}")
+        return lo, "fallback_lo"
+
+
+def invert_model(L, Y, tau, sigma, kappa, alpha, max_iter=5000, tol=1e-4):
+    """
+    Invert the R&RH 2017 Krugman-CES spatial GE model to recover productivities,
+    amenities, the price index, and the row-stochastic trade-share matrix.
+
+    Trade shares (Eq 9, Krugman-CES):
+        π[n, i] ∝ L_i × A_i^{σ-1} × (w_i^α × τ_ni)^{1-σ}
+        with rows summing to 1.
+
+    Inversion steps:
+      1. Wages w_i = Y_i / L_i.
+      2. Iterate productivities A so that market-clearing Y_pred = π.T @ Y matches observed Y.
+      3. Price index P_n = denom_n^{1/(1-σ)}.
+      4. Amenities a_n recovered from migration condition (R&RH labor mobility).
+    """
+    n = len(L)
+    print(f"\nInverting GE model for {n} locations (Krugman-CES, σ={sigma}, α={alpha}, κ={kappa})...")
+    print(f"  Trade elasticity (σ-1) = {sigma - 1}")
+
+    w = Y / np.maximum(L, 1e-10)
+    print(f"  Wages: min=${w.min():,.0f}  max=${w.max():,.0f}  ratio={w.max()/w.min():.1f}")
+
+    A, pi, P, diff_final = _build_pi_and_invert(L, Y, tau, sigma, alpha,
+                                                max_iter=max_iter, tol=tol)
 
     print(f"  Price index: min={P.min():.4f}  max={P.max():.4f}  ratio={P.max()/P.min():.1f}")
 
-    # Step 4: Amenities
-    # From migration: L_j ∝ (w_j × a_j / P_j)^κ
-    # → a_j ∝ L_j^{1/κ} × P_j / w_j
-    real_income = w / P
+    # Amenities from migration: L_n ∝ (w_n × a_n / P_n)^κ ⇒ a_n ∝ (L_n)^{1/κ} × P_n / w_n
     a = (L / L.sum())**(1.0 / kappa) * P / w
-    # Normalize amenities so mean = 1
     a = a / a.mean()
 
     print(f"  Productivity: min={A.min():.4f}  max={A.max():.4f}  ratio={A.max()/A.min():.1f}")
     print(f"  Amenities: min={a.min():.4f}  max={a.max():.4f}  ratio={a.max()/a.min():.1f}")
+
+    # Validation: row sums of pi should be 1, π_nn should be in [0, 1]
+    row_sum_err = float(np.max(np.abs(pi.sum(axis=1) - 1.0)))
+    pi_nn = np.diag(pi)
+    if row_sum_err > 1e-6:
+        print(f"  WARNING: max row-sum deviation = {row_sum_err:.2e}")
+    if pi_nn.min() < 0 or pi_nn.max() > 1:
+        print(f"  WARNING: π_nn out of [0,1]: min={pi_nn.min():.4f}, max={pi_nn.max():.4f}")
 
     return A, a, P, pi
 
@@ -447,10 +470,26 @@ def main():
     gdp = np.maximum(gdp, gdp_floor)
 
     # ── Part C: Model Inversion ──
-    tau, tc_scale = prepare_trade_costs(tc_baseline)
+    distances = prepare_distances(tc_baseline)
+
+    # Calibrate trade-cost scale so median π_nn ≈ TARGET_MEDIAN_PI_NN (R&RH-style benchmark)
+    print(f"\nCalibrating trade-cost scale to median π_nn = {TARGET_MEDIAN_PI_NN:.2f}...")
+    tc_scale, scale_status = calibrate_scale_by_pi_nn(
+        L=population, Y=gdp, distances=distances,
+        sigma=PARAMS["sigma"], alpha=PARAMS["alpha"],
+        target=TARGET_MEDIAN_PI_NN,
+    )
+    print(f"  Scale: {tc_scale:.0f} km  (status: {scale_status})")
+
+    tau = 1.0 + distances / tc_scale
+    np.fill_diagonal(tau, 1.0)
+    off_diag_tau = tau[~np.eye(len(population), dtype=bool) & (tau > 1)]
+    print(f"  Iceberg τ: min={off_diag_tau.min():.2f}, "
+          f"median={np.median(off_diag_tau):.2f}, max={off_diag_tau.max():.2f}")
+
     A, a, P, pi = invert_model(
         L=population, Y=gdp, tau=tau,
-        theta=PARAMS["theta"], kappa=PARAMS["kappa"], alpha=PARAMS["alpha"]
+        sigma=PARAMS["sigma"], kappa=PARAMS["kappa"], alpha=PARAMS["alpha"]
     )
 
     # Verify trade shares
@@ -491,7 +530,10 @@ def main():
         "n_districts": n,
         "parameters": PARAMS,
         "trade_cost_scale": float(tc_scale),
+        "scale_calibration_status": scale_status,
+        "scale_calibration_target": float(TARGET_MEDIAN_PI_NN),
         "median_pi_nn": float(np.median(pi_nn)),
+        "calibration_version": CALIBRATION_VERSION,
         "convergence": True,
     }
     with open(OUTPUT_PARAMS, "w") as f:
@@ -506,7 +548,8 @@ def main():
     print(f"  National GDP: ${national_gdp:,.0f}")
     print(f"  Total population: {population.sum():,.0f}")
     print(f"  Districts: {n}")
-    print(f"  Parameters: θ={PARAMS['theta']}, κ={PARAMS['kappa']}, α={PARAMS['alpha']}")
+    print(f"  Parameters: σ={PARAMS['sigma']}, κ={PARAMS['kappa']}, α={PARAMS['alpha']}")
+    print(f"  Trade elasticity (σ-1): {PARAMS['sigma'] - 1}")
     print(f"  Productivity range: {A.min():.4f} — {A.max():.4f} (ratio {A.max()/A.min():.1f}x)")
     print(f"  Amenity range: {a.min():.4f} — {a.max():.4f} (ratio {a.max()/a.min():.1f}x)")
     print("=" * 70)

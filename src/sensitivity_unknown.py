@@ -13,6 +13,11 @@ Tests three scenarios:
   1. unknown = 1.0 (treat all unknown as paved — optimistic)
   2. unknown = 2.0 (midpoint — current baseline)
   3. unknown = 3.0 (treat all unknown as unpaved — pessimistic)
+
+Note (v2): under the new calibration, each scenario gets its own scale
+calibrated to hit median π_nn = 0.4 (R&RH benchmark). That common
+trade-share moment makes scenarios genuinely comparable — what differs
+is the network structure under each scenario, not the iceberg level.
 """
 
 import os

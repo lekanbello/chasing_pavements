@@ -1,13 +1,28 @@
 """
 sensitivity_sigma_c.py — Welfare sensitivity to σ and c parameters.
 
-Varies the elasticity of substitution (σ) and unpaved cost ratio (c)
-across a grid and reports welfare gains for each combination.
+For each (σ, c) on the grid, re-invert calibration with that σ and re-run
+the Stage-1 counterfactual. Note that varying σ requires a fresh calibration
+(productivities A solved under that σ), not just re-using the headline A.
+
+This is the corrected v2 version of the script:
+- Krugman-CES inversion (matches Phase 3) with row-stochastic π
+- d_hat = τ-ratio (1 + tc'/scale) / (1 + tc/scale)
+- Stage-1 welfare formula has no leading ŵ
+- Scale calibrated to median π_nn = 0.4 per (σ, c) cell
 """
+
+import sys, os
+sys.path.insert(0, os.path.dirname(__file__))
 
 import numpy as np
 import json
 import geopandas as gpd
+
+from calibrate import (
+    prepare_distances, calibrate_scale_by_pi_nn, invert_model,
+    TARGET_MEDIAN_PI_NN,
+)
 
 # Load data
 admin = gpd.read_file("data/processed/tanzania_calibrated.gpkg")
@@ -18,13 +33,13 @@ with open("data/processed/tanzania_model_params.json") as f:
     params = json.load(f)
 
 alpha = params["parameters"]["alpha"]
-theta_base = params["parameters"]["theta"]
+kappa = params["parameters"]["kappa"]
 n_full = len(admin)
 
 L_full = admin["population"].values
 Y_full = admin["gdp_usd"].values
 
-# Filter districts (same as counterfactual.py)
+# Filter districts (same as run_country.py phase4)
 keep = np.ones(n_full, dtype=bool)
 for i in range(n_full):
     name = admin.iloc[i]["NAME_2"]
@@ -48,54 +63,62 @@ lam = L / L.sum()
 wl = w * lam
 
 print(f"Districts: {nn}")
-print(f"Running sensitivity grid: σ × c\n")
+print(f"Running sensitivity grid: σ × c (re-inverting per σ)\n")
 
 # Parameter grids
 sigmas = [3, 4, 5, 6, 7]
 c_ratios = [2.0, 2.5, 3.0, 3.5, 4.0]
+C_BASE = 3.0   # the c at which tc_base_orig was constructed
 
 results = np.zeros((len(c_ratios), len(sigmas)))
 
 for ci, c_new in enumerate(c_ratios):
     for si, sigma in enumerate(sigmas):
-        # Rescale baseline for new c
-        # tc_cf has all roads at c=1. tc_base_orig has c=3.
-        # The unpaved portion = tc_base_orig - tc_cf
-        # New baseline = tc_cf + (tc_base_orig - tc_cf) * (c_new / 3.0)
-        tc_b = tc_c + (tc_b_orig - tc_c) * (c_new / 3.0)
+        # 1. Rebuild baseline trade-cost matrix at new c.
+        # tc_b_orig has unpaved roads scaled by c=3; tc_c has all roads at c=1.
+        # Rescale: tc_b(c) = tc_c + (tc_b_orig - tc_c) × c/3
+        tc_b = tc_c + (tc_b_orig - tc_c) * (c_new / C_BASE)
 
-        # d_hat
-        conn = np.isfinite(tc_b) & np.isfinite(tc_c) & (tc_b > 0) & (tc_c > 0)
-        np.fill_diagonal(conn, True)
-        d_hat = np.ones((nn, nn))
-        mask = conn & ~np.eye(nn, dtype=bool)
-        d_hat[mask] = tc_c[mask] / tc_b[mask]
-        np.fill_diagonal(d_hat, 1.0)
+        # 2. Prepare distances (handle inf, fill diagonal).
+        distances = prepare_distances(tc_b)
 
-        # Trade cost normalization
-        tc_copy = tc_b.copy()
-        finite = np.isfinite(tc_copy) & (tc_copy > 0)
-        max_f = tc_copy[finite].max() if finite.any() else 1.0
-        tc_copy[~np.isfinite(tc_copy)] = max_f * 2
-        np.fill_diagonal(tc_copy, 0)
-        off = tc_copy[~np.eye(nn, dtype=bool) & (tc_copy > 0)]
-        scale = np.median(off) / 4.0 if len(off) > 0 else 340
+        # 3. Calibrate scale to median π_nn = 0.4 with this σ.
+        try:
+            scale, status = calibrate_scale_by_pi_nn(
+                L=L, Y=Y, distances=distances,
+                sigma=sigma, alpha=alpha, target=TARGET_MEDIAN_PI_NN,
+            )
+        except Exception as e:
+            print(f"  σ={sigma}, c={c_new}: scale-calibration failed: {e}")
+            results[ci, si] = np.nan
+            continue
 
-        tau = 1.0 + tc_copy / scale
+        tau = 1.0 + distances / scale
         np.fill_diagonal(tau, 1.0)
 
-        # Compute trade shares with current sigma
-        # Use productivities from base calibration (approximate)
-        A = admin.iloc[idx]["productivity"].values
-        cost = np.outer(w**alpha, np.ones(nn)) * tau
-        num = np.outer(A**sigma, np.ones(nn)) * cost**(-sigma)
-        Phi = num.sum(axis=0)
-        Phi = np.maximum(Phi, 1e-300)
-        pi = num / Phi[np.newaxis, :]
+        # 4. Re-invert calibration with this σ.
+        try:
+            A, a, P, pi = invert_model(L, Y, tau, sigma=sigma, kappa=kappa,
+                                       alpha=alpha, max_iter=2000, tol=1e-3)
+        except Exception as e:
+            print(f"  σ={sigma}, c={c_new}: inversion failed: {e}")
+            results[ci, si] = np.nan
+            continue
 
         pi_nn = np.diag(pi)
 
-        # Stage 1 solver (fixed population)
+        # 5. Compute d_hat with iceberg-ratio formula (Bug 1 fix).
+        # We've rebuilt tc_b at this c, but the disconnected-pair fill happened
+        # inside `prepare_distances` for the calibration scale. For d_hat we use
+        # the original tc_b/tc_c (with inf, where applicable) and apply the
+        # same scale.
+        conn = (np.isfinite(tc_b) & np.isfinite(tc_c) & (tc_b > 0) & (tc_c > 0))
+        np.fill_diagonal(conn, True)
+        d_hat = np.ones((nn, nn))
+        mask = conn & ~np.eye(nn, dtype=bool)
+        d_hat[mask] = (1.0 + tc_c[mask] / scale) / (1.0 + tc_b[mask] / scale)
+
+        # 6. Stage 1 (fixed population) solver.
         w_hat = np.ones(nn)
         for it in range(3000):
             w_hat_old = w_hat.copy()
@@ -103,24 +126,25 @@ for ci, c_new in enumerate(c_ratios):
             num_cf = pi * factor
             pi_p = num_cf / num_cf.sum(axis=1, keepdims=True)
             rhs = pi_p.T @ (w_hat * wl)
-            w_hat_new = rhs / wl
+            w_hat_new = rhs / np.maximum(wl, 1e-300)
             w_hat = w_hat**0.7 * np.maximum(w_hat_new, 1e-20)**0.3
             w_hat = w_hat / np.average(w_hat, weights=wl)
             if np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))) < 1e-6:
                 break
 
-        # Welfare
+        # 7. Stage 1 welfare (Bug 5 fix: no leading ŵ).
         pi_nn_p = np.diag(pi_p)
         exp1 = alpha / (sigma - 1)
-        welfare = np.average(w_hat * (pi_nn / np.maximum(pi_nn_p, 1e-20))**exp1, weights=L)
+        welfare_loc = (pi_nn / np.maximum(pi_nn_p, 1e-20))**exp1
+        welfare = float(np.average(welfare_loc, weights=L))
         welf_pct = 100 * (welfare - 1)
         results[ci, si] = welf_pct
 
-        print(f"  σ={sigma}, c={c_new}: welfare = {welf_pct:+.1f}%")
+        print(f"  σ={sigma}, c={c_new}: welfare = {welf_pct:+.1f}%  (scale={scale:.0f}km, status={status})")
 
 # Print table
 print(f"\n{'='*70}")
-print(f"WELFARE SENSITIVITY TABLE (Stage 1, fixed population)")
+print(f"WELFARE SENSITIVITY TABLE (Stage 1, fixed population) — v2")
 print(f"{'='*70}")
 label = 'c \\ σ'
 header = f"{label:>8s}" + "".join(f"{s:>10d}" for s in sigmas)
@@ -132,8 +156,10 @@ for ci, c in enumerate(c_ratios):
 
 # Save
 with open("outputs/welfare_sensitivity_sigma_c.txt", "w") as f:
-    f.write("Welfare Sensitivity to sigma and c (Stage 1, fixed population)\n")
-    f.write(f"Country: Tanzania, n={nn} districts, alpha={alpha}\n")
+    f.write("Welfare Sensitivity to sigma and c (Stage 1, fixed population) — v2\n")
+    f.write(f"Country: Tanzania, n={nn} districts, alpha={alpha}, kappa={kappa}\n")
+    f.write(f"Calibration version: v2-rrh-krugman-cse-row\n")
+    f.write(f"Each cell is fully re-calibrated (scale fit to median pi_nn=0.4) per (sigma, c).\n")
     f.write("=" * 60 + "\n")
     f.write(header + "\n")
     f.write("-" * len(header) + "\n")

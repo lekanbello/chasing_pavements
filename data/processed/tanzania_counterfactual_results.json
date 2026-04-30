@@ -1,14 +1,19 @@
 {
+  "counterfactual": "pave_all_roads",
   "country": "Tanzania",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
-  "n_districts": 160,
-  "n_total": 186,
-  "welfare_pct": 33.687529724802175,
-  "welfare_s1_pct": 48.06143019710032
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "n_districts": 158,
+  "welfare_pct": 9.437758796651984,
+  "welfare_cv": 4.529170405780364e-10,
+  "stage2_converged": true,
+  "welfare_s3_pct": 9.378154052870302,
+  "welfare_s3_cv": 0.03375016426217744,
+  "kappa": 2.0,
+  "gdp_pct": -2.5001677460239735
 }

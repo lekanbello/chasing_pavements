@@ -52,8 +52,20 @@ def collect_model_results():
                 "region": country["region"],
                 "national_gdp_2019": country["national_gdp_2019"],
                 "n_districts": cf.get("n_districts", cf.get("n_total", "")),
-                "welfare_pct": cf.get("welfare_pct", ""),
+                # Stage 1 (κ=0, no mobility)
                 "welfare_s1_pct": cf.get("welfare_s1_pct", ""),
+                # Stage 2 (κ=∞, perfect mobility, headline)
+                "welfare_pct": cf.get("welfare_pct", ""),
+                "welfare_cv": cf.get("welfare_cv", ""),
+                "stage2_converged": cf.get("stage2_converged", ""),
+                # Stage 3 (finite-κ frictional mobility)
+                "welfare_s3_pct": cf.get("welfare_s3_pct", ""),
+                "welfare_s3_cv": cf.get("welfare_s3_cv", ""),
+                "kappa": cf.get("kappa", ""),
+                # Calibration metadata
+                "calibration_version": cf.get("calibration_version",
+                                              params.get("calibration_version", "")),
+                "scale_calibration_status": params.get("scale_calibration_status", ""),
                 "median_pi_nn": params.get("median_pi_nn", ""),
                 "trade_cost_scale": params.get("trade_cost_scale", ""),
                 "total_population": params.get("total_population", ""),
@@ -91,12 +103,29 @@ def collect_model_results():
     print(f"Countries with results: {len(success)} / {len(df)}")
 
     if len(success) > 0:
-        print(f"\n{'Country':<25s} {'Region':<18s} {'Welfare':>10s} {'Districts':>10s}")
-        print(f"{'-'*65}")
+        print(f"\n{'Country':<25s} {'Region':<18s} {'S1':>8s} {'S2':>8s} {'S3':>8s} {'S3 CV':>8s} {'Distr':>8s}")
+        print(f"{'-'*85}")
         for _, row in success.sort_values("welfare_pct", ascending=False).iterrows():
-            w = row.get("welfare_pct", "")
-            w_str = f"{w:+.1f}%" if isinstance(w, (int, float)) else str(w)
-            print(f"{row['country_name']:<25s} {row['region']:<18s} {w_str:>10s} {row.get('n_districts',''):>10}")
+            def fmt_pct(v):
+                return f"{v:+.1f}%" if isinstance(v, (int, float)) else str(v)
+            def fmt_cv(v):
+                return f"{v:.3f}" if isinstance(v, (int, float)) else str(v)
+            print(f"{row['country_name']:<25s} {row['region']:<18s} "
+                  f"{fmt_pct(row.get('welfare_s1_pct','')):>8s} "
+                  f"{fmt_pct(row.get('welfare_pct','')):>8s} "
+                  f"{fmt_pct(row.get('welfare_s3_pct','')):>8s} "
+                  f"{fmt_cv(row.get('welfare_s3_cv','')):>8s} "
+                  f"{row.get('n_districts',''):>8}")
+
+        # Convergence flag summary
+        cvs = success["welfare_cv"]
+        cvs_num = pd.to_numeric(cvs, errors="coerce")
+        non_conv = cvs_num[cvs_num > 0.05]
+        if len(non_conv) > 0:
+            print(f"\n  WARNING: {len(non_conv)} countries with welfare_cv > 0.05 (Stage 2 not equalized):")
+            for idx, cv in non_conv.items():
+                country_name = success.loc[idx, "country_name"]
+                print(f"    {country_name}: cv={cv:.3f}")
 
     missing = df[df["status"] != "success"]
     if len(missing) > 0:

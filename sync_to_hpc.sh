@@ -9,13 +9,14 @@ HPC="torch"
 HPC_ROOT="/scratch/ob708/chasing_pavements"
 
 echo "Syncing code and configs to HPC..."
+# NOTE: data/raw is a symlink to Dropbox locally. Exclude it entirely so we
+# (1) don't overwrite HPC's locally-downloaded raw data with a dangling symlink,
+# (2) don't accidentally upload 8GB+ of data through Dropbox.
 rsync -avz --progress \
   --exclude='.git' \
   --exclude='__pycache__' \
   --exclude='*.pyc' \
-  --exclude='data/raw/*.osm.pbf' \
-  --exclude='data/raw/*.tif' \
-  --exclude='data/raw/bfi_gdp_025deg/' \
+  --exclude='data/raw' \
   --exclude='data/processed/*.gpkg' \
   --exclude='data/processed/*.npy' \
   --exclude='notebooks/' \

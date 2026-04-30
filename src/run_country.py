@@ -368,49 +368,78 @@ def phase3_calibrate(cfg, admin, tc_base):
     population = np.maximum(population, pop_floor)
     gdp = np.maximum(gdp, gdp_floor)
 
-    # Trade cost normalization
+    # Trade cost preprocessing — replace inf with 2x max-finite, zero diagonal
     tc = tc_base.copy()
     finite = np.isfinite(tc) & (tc > 0)
     max_f = tc[finite].max()
     tc[~np.isfinite(tc)] = max_f * 2
     np.fill_diagonal(tc, 0)
-    off = tc[~np.eye(n, dtype=bool) & (tc > 0)]
-    scale = np.median(off) / 4.0
-    tau = 1.0 + tc / scale
-    np.fill_diagonal(tau, 1.0)
-    print(f"  Trade cost scale: {scale:.0f} km, median τ: {np.median(tau[tau>1]):.2f}")
+    distances = tc
 
-    # Inversion
-    theta = cfg["parameters"]["theta"]
+    # Krugman-CES parameters (R&RH 2017). Trade elasticity = σ - 1.
+    sigma = cfg["parameters"]["sigma"]
     alpha = cfg["parameters"]["alpha"]
     kappa = cfg["parameters"]["kappa"]
-    w = gdp / population
+    s_minus_1 = sigma - 1.0
+
+    # ── Calibrate trade-cost scale to median π_nn target via brentq ──
+    from calibrate import calibrate_scale_by_pi_nn, TARGET_MEDIAN_PI_NN, CALIBRATION_VERSION
+    print(f"  Calibrating scale to median π_nn = {TARGET_MEDIAN_PI_NN:.2f}...")
+    scale, scale_status = calibrate_scale_by_pi_nn(
+        L=population, Y=gdp, distances=distances,
+        sigma=sigma, alpha=alpha, target=TARGET_MEDIAN_PI_NN,
+    )
+    print(f"  Scale: {scale:.0f} km  (status: {scale_status})")
+
+    tau = 1.0 + distances / scale
+    np.fill_diagonal(tau, 1.0)
+    off_diag = tau[~np.eye(n, dtype=bool) & (tau > 1)]
+    print(f"  τ: median={np.median(off_diag):.2f}, max={off_diag.max():.2f}")
+
+    # ── Krugman-CES inversion ──
+    # π[n, i] ∝ L_i × A_i^{σ-1} × (w_i^α × τ_ni)^{1-σ}, rows sum to 1.
+    w = gdp / np.maximum(population, 1e-10)
     A = (gdp / population) / np.median(gdp / population)
     A = np.maximum(A, 1e-10)
 
-    print("  Inverting model...")
+    # cost[n, i] = w_i^α × τ_ni  ;  cost_pow constant across iterations
+    w_alpha_origin = (w**alpha)[np.newaxis, :]
+    cost = tau * w_alpha_origin
+    cost_pow = cost**(1.0 - sigma)
+
+    print("  Inverting model (Krugman-CES, row-stochastic π)...")
     for iteration in range(3000):
         A_old = A.copy()
-        cost = np.outer(w**alpha, np.ones(n)) * tau
-        num = np.outer(A**theta, np.ones(n)) * cost**(-theta)
-        Phi = num.sum(axis=0)
-        Phi = np.maximum(Phi, 1e-300)
-        pi = num / Phi[np.newaxis, :]
-        Y_pred = pi @ gdp
+        L_A = (population * A**s_minus_1)[np.newaxis, :]
+        num = L_A * cost_pow
+        denom = num.sum(axis=1, keepdims=True)
+        denom = np.maximum(denom, 1e-300)
+        pi = num / denom
+        # Market clearing: Y_i = Σ_n π[n, i] × Y_n
+        Y_pred = pi.T @ gdp
         ratio = gdp / np.maximum(Y_pred, 1e-10)
-        A = A * ratio**(0.3 / theta)
+        A = A * ratio**(0.3 / s_minus_1)
         A = np.maximum(A, 1e-10)
         diff = np.max(np.abs(np.log(A) - np.log(A_old)))
         if diff < 1e-4:
             print(f"  Converged at iteration {iteration}")
             break
 
+    # Final π and price index
+    L_A = (population * A**s_minus_1)[np.newaxis, :]
+    num = L_A * cost_pow
+    denom = num.sum(axis=1, keepdims=True)
+    pi = num / np.maximum(denom, 1e-300)
     pi_nn = np.diag(pi)
-    P = Phi**(-1.0 / theta)
+    P = denom.flatten()**(1.0 / (1.0 - sigma))
     a = (population / population.sum())**(1.0 / kappa) * P / w
     a = a / a.mean()
 
-    print(f"  Median pi_nn: {np.median(pi_nn):.3f}")
+    # Validation
+    row_sum_err = float(np.max(np.abs(pi.sum(axis=1) - 1.0)))
+    if row_sum_err > 1e-6:
+        print(f"  WARNING: max row-sum deviation = {row_sum_err:.2e}")
+    print(f"  Median pi_nn: {np.median(pi_nn):.3f}  (target {TARGET_MEDIAN_PI_NN:.2f})")
     print(f"  Productivity range: {A.min():.3f} - {A.max():.3f}")
 
     # Save
@@ -426,7 +455,10 @@ def phase3_calibrate(cfg, admin, tc_base):
         "year": cfg["year"], "national_gdp_usd": float(national_gdp),
         "total_population": float(population.sum()), "n_districts": n,
         "parameters": cfg["parameters"], "trade_cost_scale": float(scale),
+        "scale_calibration_status": scale_status,
+        "scale_calibration_target": float(TARGET_MEDIAN_PI_NN),
         "median_pi_nn": float(np.median(pi_nn)),
+        "calibration_version": CALIBRATION_VERSION,
     }, open(cfg["model_params"], "w"), indent=2)
     print(f"  Saved calibrated model")
 
@@ -438,14 +470,23 @@ def phase3_calibrate(cfg, admin, tc_base):
 # ══════════════════════════════════════════════════════════════════════
 
 def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
-    """Solve counterfactual and compute welfare."""
+    """Solve counterfactual and compute welfare. R&RH 2017 hat algebra."""
     print(f"\n{'='*60}")
     print(f"PHASE 4: Counterfactual (pave all roads)")
     print(f"{'='*60}")
 
     sigma = cfg["parameters"]["sigma"]
     alpha = cfg["parameters"]["alpha"]
+    kappa = cfg["parameters"].get("kappa")    # Stage 3 migration elasticity
     n = len(admin)
+
+    # Load calibration scale (Bug 1 fix: τ-ratio needs scale).
+    with open(cfg["model_params"]) as f:
+        params_saved = json.load(f)
+    scale = params_saved["trade_cost_scale"]
+    cal_ver = params_saved.get("calibration_version", "v1-legacy")
+    if cal_ver != "v2-rrh-krugman-cse-row":
+        print(f"  WARNING: calibration_version={cal_ver}; expected v2-rrh-krugman-cse-row.")
 
     # Filter districts
     L, Y = population, gdp
@@ -467,22 +508,27 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
     L_s = L[idx]; Y_s = Y[idx]
     tc_b = tc_base[np.ix_(idx, idx)]; tc_c = tc_cf[np.ix_(idx, idx)]
     pi = pi_full[np.ix_(idx, idx)]
+    # Small renormalization for the kept indices; π is row-stochastic by construction in v2.
     pi = pi / pi.sum(axis=1, keepdims=True)
 
-    # d_hat
+    # d_hat = τ'/τ (Bug 1 fix — iceberg ratio, not raw distance ratio)
     conn = np.isfinite(tc_b) & np.isfinite(tc_c) & (tc_b > 0) & (tc_c > 0)
     np.fill_diagonal(conn, True)
     d_hat = np.ones((nn, nn))
     mask = conn & ~np.eye(nn, dtype=bool)
-    d_hat[mask] = tc_c[mask] / tc_b[mask]
+    d_hat[mask] = (1.0 + tc_c[mask] / scale) / (1.0 + tc_b[mask] / scale)
 
     reduced = d_hat[mask & (d_hat < 0.999)]
-    print(f"  Mean d_hat reduction: {100*(1-reduced.mean()):.1f}%")
+    if len(reduced) > 0:
+        print(f"  Mean d_hat reduction: {100*(1-reduced.mean()):.1f}%")
 
     w = Y_s / L_s
     lam = L_s / L_s.sum()
     wl = w * lam
     pi_nn = np.diag(pi)
+    exp1 = alpha / (sigma - 1)
+    exp2 = (sigma * (1 - alpha) - 1) / (sigma - 1)
+    gamma = alpha / (sigma * (1 - alpha) - 1)
 
     # Stage 1: fixed population
     print("  Stage 1 (fixed pop)...")
@@ -493,21 +539,21 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
         num = pi * factor
         pi_p = num / num.sum(axis=1, keepdims=True)
         rhs = pi_p.T @ (w_hat * wl)
-        w_hat_new = rhs / wl
+        w_hat_new = rhs / np.maximum(wl, 1e-300)
         w_hat = w_hat**0.7 * np.maximum(w_hat_new, 1e-20)**0.3
         w_hat = w_hat / np.average(w_hat, weights=wl)
         if np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))) < 1e-6:
             break
 
     pi_nn_p1 = np.diag(pi_p)
-    exp1 = alpha / (sigma - 1)
-    welfare_s1 = np.average(w_hat * (pi_nn / np.maximum(pi_nn_p1, 1e-20))**exp1, weights=L_s)
+    # Bug 5 fix: drop the leading ŵ in Stage 1 welfare; ŵ cancels in P̂ under L̂=1.
+    welfare_s1_loc = (pi_nn / np.maximum(pi_nn_p1, 1e-20))**exp1
+    welfare_s1 = float(np.average(welfare_s1_loc, weights=L_s))
     print(f"  Stage 1 welfare: {100*(welfare_s1-1):+.1f}%")
 
     # Stage 2: with mobility
     print("  Stage 2 (with mobility)...")
     lam_hat = np.ones(nn)
-    gamma = alpha / (sigma * (1 - alpha) - 1)
 
     for it in range(5000):
         w_hat_old = w_hat.copy()
@@ -536,31 +582,120 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
         if diff < 1e-7:
             break
 
-    # Welfare (Eq 21)
-    exp2 = (sigma * (1-alpha) - 1) / (sigma - 1)
+    # Welfare (Eq 21, Bug 6 fix: same object used for headline and maps)
     lam_p = lam_hat * lam
     pi_nn_final = np.diag(pi_p)
-    welfare_loc = (pi_nn / np.maximum(pi_nn_final, 1e-20))**exp1 * (lam / np.maximum(lam_p, 1e-20))**exp2
-    welfare = np.median(welfare_loc)
+    welfare_loc = (pi_nn / np.maximum(pi_nn_final, 1e-20))**exp1 * \
+                  (lam / np.maximum(lam_p, 1e-20))**exp2
+
+    # Bug 4 fix: pop-weighted mean instead of median; save CV for convergence diagnostic.
+    L_prime = L_s * lam_hat
+    welfare = float(np.average(welfare_loc, weights=L_prime))
     welfare_pct = 100 * (welfare - 1)
+    welfare_cv = float(np.std(welfare_loc) / np.mean(welfare_loc))
+
+    # Snapshot Stage 2 before Stage 3 overwrites w_hat / lam_hat
+    w_hat_s2 = w_hat.copy()
+    lam_hat_s2 = lam_hat.copy()
+
+    # Stage 3: Finite-κ frictional mobility (R&RH 2017 with finite migration elasticity).
+    # Migration: λ̂_n ∝ V̂_n^κ. Welfare varies across locations; in-migration partly equalizes.
+    welfare_s3_pct = None
+    welfare_s3_cv = None
+    welfare_s3_loc = None
+    lam_hat_s3 = None
+    if kappa is not None:
+        print(f"  Stage 3 (frictional mobility, κ={kappa})...")
+        for it in range(5000):
+            w_hat_old = w_hat.copy()
+            lam_hat_old = lam_hat.copy()
+            L_hat = lam_hat
+
+            factor = (d_hat * w_hat[np.newaxis, :])**(1-sigma) * L_hat[np.newaxis, :]
+            num = pi * factor
+            pi_p = num / num.sum(axis=1, keepdims=True)
+            pi_nn_p_iter = np.diag(pi_p)
+
+            # Welfare per location and migration update
+            lam_p_iter = lam_hat * lam
+            V_loc = (pi_nn / np.maximum(pi_nn_p_iter, 1e-20))**exp1 * \
+                    (lam / np.maximum(lam_p_iter, 1e-20))**exp2
+            V_safe = np.clip(V_loc, 1e-10, 1e10)
+            V_kappa = V_safe**kappa
+            norm = np.sum(lam * V_kappa)
+            lam_hat_new = V_kappa / np.maximum(norm, 1e-300)
+
+            # Wage clearing
+            rhs = pi_p.T @ (w_hat * lam_hat * wl)
+            w_hat_new = rhs / np.maximum(lam_hat * wl, 1e-300)
+
+            w_hat = w_hat**0.9 * np.clip(w_hat_new, 0.1, 10)**0.1
+            lam_hat = lam_hat**0.9 * np.clip(lam_hat_new, 0.1, 10)**0.1
+            w_hat = w_hat / np.average(w_hat, weights=wl)
+
+            diff = max(np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))),
+                       np.max(np.abs(np.log(np.maximum(lam_hat, 1e-20)) -
+                                      np.log(np.maximum(lam_hat_old, 1e-20)))))
+            if diff < 1e-7:
+                break
+
+        # Final Stage 3 outputs
+        lam_hat_s3 = lam_hat.copy()
+        factor = (d_hat * w_hat[np.newaxis, :])**(1-sigma) * lam_hat[np.newaxis, :]
+        num = pi * factor
+        pi_p_s3 = num / num.sum(axis=1, keepdims=True)
+        pi_nn_p_s3 = np.diag(pi_p_s3)
+        lam_p_s3 = lam_hat * lam
+        welfare_s3_loc = (pi_nn / np.maximum(pi_nn_p_s3, 1e-20))**exp1 * \
+                         (lam / np.maximum(lam_p_s3, 1e-20))**exp2
+        L_prime_s3 = L_s * lam_hat
+        welfare_s3 = float(np.average(welfare_s3_loc, weights=L_prime_s3))
+        welfare_s3_pct = 100 * (welfare_s3 - 1)
+        welfare_s3_cv = float(np.std(welfare_s3_loc) / np.mean(welfare_s3_loc))
 
     print(f"\n  ┌─────────────────────────────────────────┐")
     print(f"  │  {cfg['country_name']:>10s} Welfare Gain: {welfare_pct:>+6.1f}%     │")
     print(f"  │  Stage 1 (fixed pop):    {100*(welfare_s1-1):>+6.1f}%     │")
+    if welfare_s3_pct is not None:
+        print(f"  │  Stage 3 (κ={kappa}):    {welfare_s3_pct:>+6.1f}%     │")
+        print(f"  │  Stage 3 CV:             {welfare_s3_cv:>6.3f}      │")
+    print(f"  │  Stage 2 CV:             {welfare_cv:>6.3f}      │")
     print(f"  └─────────────────────────────────────────┘")
 
     # Save
     admin_sub = admin.iloc[idx].reset_index(drop=True)
+    admin_sub["welfare_hat"] = welfare_loc
     admin_sub["welfare_pct"] = 100 * (welfare_loc - 1)
-    admin_sub["pop_hat"] = lam_hat
+    # Stage 1 (pre-mobility) per-location welfare
+    admin_sub["welfare_s1_hat"] = welfare_s1_loc
+    admin_sub["welfare_s1_pct"] = 100 * (welfare_s1_loc - 1)
+    # Stage 3 (frictional mobility) per-location welfare and population
+    if welfare_s3_loc is not None:
+        admin_sub["welfare_s3_hat"] = welfare_s3_loc
+        admin_sub["welfare_s3_pct"] = 100 * (welfare_s3_loc - 1)
+        admin_sub["pop_s3_hat"] = lam_hat_s3
+        admin_sub["pop_s3_pct"] = 100 * (lam_hat_s3 - 1)
+    # Stage 2 population & wages (use the saved snapshot, not Stage 3 overwrites)
+    admin_sub["pop_hat"] = lam_hat_s2
+    admin_sub["pop_pct"] = 100 * (lam_hat_s2 - 1)
+    admin_sub["wage_hat"] = w_hat_s2
     admin_sub.to_file(cfg["counterfactual_gpkg"], driver="GPKG")
 
     json.dump({
         "country": cfg["country_name"], "year": cfg["year"],
         "parameters": cfg["parameters"],
+        "calibration_version": cal_ver,
+        "trade_cost_scale": float(scale),
         "n_districts": nn, "n_total": n,
+        # Stage 2 (perfect mobility, headline)
         "welfare_pct": float(welfare_pct),
         "welfare_s1_pct": float(100*(welfare_s1-1)),
+        "welfare_cv": welfare_cv,
+        "stage2_converged": bool(welfare_cv < 0.05),
+        # Stage 3 (frictional mobility)
+        "welfare_s3_pct": welfare_s3_pct,
+        "welfare_s3_cv": welfare_s3_cv,
+        "kappa": kappa,
     }, open(cfg["counterfactual_results"], "w"), indent=2)
 
     return welfare_pct

@@ -11,12 +11,11 @@ import pandas as pd
 MASTER_CSV = os.path.join(os.path.dirname(__file__), "..", "configs", "ssa_countries.csv")
 YEAR = 2019
 
-# Default model parameters (same for all countries)
+# Default model parameters (R&RH 2017 Krugman-CES; trade elasticity = σ-1).
 DEFAULT_PARAMS = {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
     "alpha": 0.65,
-    "sigma": 5.0,
 }
 
 
