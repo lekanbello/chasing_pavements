@@ -117,6 +117,9 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
     print("  Stage 1: Fixed population (no mobility)...")
     w_hat = np.ones(n)
     lam_hat = np.ones(n)
+    s1_iter_converged = False
+    s1_iter_diff = None
+    s1_iter_count = 0
 
     for iteration in range(max_iter):
         w_hat_old = w_hat.copy()
@@ -137,10 +140,13 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
         w_hat = w_hat / np.average(w_hat, weights=wl)
 
         diff = np.max(np.abs(np.log(w_hat) - np.log(w_hat_old)))
+        s1_iter_count = iteration + 1
+        s1_iter_diff = float(diff)
         if iteration % 500 == 0:
             print(f"    Iter {iteration}: |Δlogŵ|={diff:.2e}")
         if diff < tol:
             print(f"  Stage 1 converged at iteration {iteration}")
+            s1_iter_converged = True
             break
     else:
         print(f"  Stage 1 stopped at {max_iter} (diff={diff:.2e})")
@@ -159,6 +165,9 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
     # Stage 2: With population mobility
     # ════════════════════════════════════════════════════════════════
     print("\n  Stage 2: Adding population mobility...")
+    s2_iter_converged = False
+    s2_iter_diff = None
+    s2_iter_count = 0
 
     for iteration in range(max_iter):
         w_hat_old = w_hat.copy()
@@ -192,11 +201,14 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
         diff_l = np.max(np.abs(np.log(np.maximum(lam_hat, 1e-20)) -
                                 np.log(np.maximum(lam_hat_old, 1e-20))))
         diff = max(diff_w, diff_l)
+        s2_iter_count = iteration + 1
+        s2_iter_diff = float(diff)
 
         if iteration % 500 == 0:
             print(f"    Iter {iteration}: |Δlogŵ|={diff_w:.2e}, |Δlogλ̂|={diff_l:.2e}")
         if diff < tol:
             print(f"  Stage 2 converged at iteration {iteration}")
+            s2_iter_converged = True
             break
     else:
         print(f"  Stage 2 stopped at {max_iter} (diff={diff:.2e})")
@@ -257,6 +269,9 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
     w_hat_s3 = None
     lam_hat_s3 = None
     pi_nn_prime_s3 = None
+    s3_iter_converged = False
+    s3_iter_diff = None
+    s3_iter_count = 0
     if kappa is not None:
         print(f"\n  Stage 3: Frictional mobility (κ={kappa})...")
 
@@ -298,11 +313,14 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
             diff_l = np.max(np.abs(np.log(np.maximum(lam_hat, 1e-20)) -
                                     np.log(np.maximum(lam_hat_old, 1e-20))))
             diff_iter = max(diff_w, diff_l)
+            s3_iter_count = iteration + 1
+            s3_iter_diff = float(diff_iter)
 
             if iteration % 500 == 0:
                 print(f"    Iter {iteration}: |Δlogŵ|={diff_w:.2e}, |Δlogλ̂|={diff_l:.2e}")
             if diff_iter < tol:
                 print(f"  Stage 3 converged at iteration {iteration}")
+                s3_iter_converged = True
                 break
         else:
             print(f"  Stage 3 stopped at {max_iter} (diff={diff_iter:.2e})")
@@ -348,6 +366,18 @@ def solve_counterfactual(L, Y, pi, d_hat, sigma, alpha, kappa=None,
         "w_hat_s3": w_hat_s3,
         "lam_hat_s3": lam_hat_s3,
         "pi_nn_prime_s3": pi_nn_prime_s3,
+        # Solver convergence diagnostics (per stage). Distinct from welfare_cv,
+        # which measures cross-locational equalization. iter_converged tracks
+        # whether the fixed-point iteration met its tolerance before max_iter.
+        "s1_iter_converged": s1_iter_converged,
+        "s1_iter_diff": s1_iter_diff,
+        "s1_iter_count": s1_iter_count,
+        "s2_iter_converged": s2_iter_converged,
+        "s2_iter_diff": s2_iter_diff,
+        "s2_iter_count": s2_iter_count,
+        "s3_iter_converged": s3_iter_converged,
+        "s3_iter_diff": s3_iter_diff,
+        "s3_iter_count": s3_iter_count,
         # Other
         "gdp_pct": gdp_pct,
         "L_prime": L_prime_s2,
@@ -486,13 +516,23 @@ def main():
         # Stage 2 (perfect mobility, headline)
         "welfare_pct": float(results["welfare_pct"]),
         "welfare_cv": float(results["welfare_cv"]),
-        "stage2_converged": bool(results["welfare_cv"] < 0.05),
         # Stage 3 (frictional mobility)
         "welfare_s3_pct": (float(results["welfare_s3_pct"])
                            if results.get("welfare_s3_pct") is not None else None),
         "welfare_s3_cv": (float(results["welfare_s3_cv"])
                           if results.get("welfare_s3_cv") is not None else None),
         "kappa": results.get("kappa"),
+        # Solver-level convergence diagnostics (distinct from welfare_cv).
+        # iter_converged = fixed-point iteration met tolerance; iter_diff = final residual.
+        "s1_iter_converged": bool(results.get("s1_iter_converged", False)),
+        "s1_iter_diff": results.get("s1_iter_diff"),
+        "s2_iter_converged": bool(results.get("s2_iter_converged", False)),
+        "s2_iter_diff": results.get("s2_iter_diff"),
+        "s3_iter_converged": bool(results.get("s3_iter_converged", False)),
+        "s3_iter_diff": results.get("s3_iter_diff"),
+        # Welfare equalization diagnostic (was named stage2_converged in v2.0;
+        # renamed because welfare equalization ≠ solver convergence).
+        "welfare_equalized": bool(results["welfare_cv"] < 0.05),
         "gdp_pct": float(results["gdp_pct"]),
     }
     with open(OUTPUT_RESULTS, "w") as f:

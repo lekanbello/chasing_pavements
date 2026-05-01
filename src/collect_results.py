@@ -57,7 +57,17 @@ def collect_model_results():
                 # Stage 2 (κ=∞, perfect mobility, headline)
                 "welfare_pct": cf.get("welfare_pct", ""),
                 "welfare_cv": cf.get("welfare_cv", ""),
-                "stage2_converged": cf.get("stage2_converged", ""),
+                # Welfare equalization diagnostic (was misleadingly named
+                # 'stage2_converged' in the first v2 cut)
+                "welfare_equalized": cf.get("welfare_equalized",
+                                            cf.get("stage2_converged", "")),
+                # Solver convergence (per stage; separate from welfare equalization)
+                "s1_iter_converged": cf.get("s1_iter_converged", ""),
+                "s1_iter_diff": cf.get("s1_iter_diff", ""),
+                "s2_iter_converged": cf.get("s2_iter_converged", ""),
+                "s2_iter_diff": cf.get("s2_iter_diff", ""),
+                "s3_iter_converged": cf.get("s3_iter_converged", ""),
+                "s3_iter_diff": cf.get("s3_iter_diff", ""),
                 # Stage 3 (finite-κ frictional mobility)
                 "welfare_s3_pct": cf.get("welfare_s3_pct", ""),
                 "welfare_s3_cv": cf.get("welfare_s3_cv", ""),

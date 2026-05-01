@@ -533,6 +533,10 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
     # Stage 1: fixed population
     print("  Stage 1 (fixed pop)...")
     w_hat = np.ones(nn)
+    s1_iter_converged = False
+    s1_iter_diff = None
+    s1_iter_count = 0
+    s1_tol = 1e-6
     for it in range(5000):
         w_hat_old = w_hat.copy()
         factor = (d_hat * w_hat[np.newaxis, :])**(1 - sigma)
@@ -542,7 +546,11 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
         w_hat_new = rhs / np.maximum(wl, 1e-300)
         w_hat = w_hat**0.7 * np.maximum(w_hat_new, 1e-20)**0.3
         w_hat = w_hat / np.average(w_hat, weights=wl)
-        if np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))) < 1e-6:
+        diff = float(np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))))
+        s1_iter_count = it + 1
+        s1_iter_diff = diff
+        if diff < s1_tol:
+            s1_iter_converged = True
             break
 
     pi_nn_p1 = np.diag(pi_p)
@@ -554,6 +562,10 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
     # Stage 2: with mobility
     print("  Stage 2 (with mobility)...")
     lam_hat = np.ones(nn)
+    s2_iter_converged = False
+    s2_iter_diff = None
+    s2_iter_count = 0
+    s2_tol = 1e-7
 
     for it in range(5000):
         w_hat_old = w_hat.copy()
@@ -579,7 +591,10 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
         diff = max(np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))),
                    np.max(np.abs(np.log(np.maximum(lam_hat, 1e-20)) -
                                   np.log(np.maximum(lam_hat_old, 1e-20)))))
-        if diff < 1e-7:
+        s2_iter_count = it + 1
+        s2_iter_diff = float(diff)
+        if diff < s2_tol:
+            s2_iter_converged = True
             break
 
     # Welfare (Eq 21, Bug 6 fix: same object used for headline and maps)
@@ -604,6 +619,10 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
     welfare_s3_cv = None
     welfare_s3_loc = None
     lam_hat_s3 = None
+    s3_iter_converged = False
+    s3_iter_diff = None
+    s3_iter_count = 0
+    s3_tol = 1e-7
     if kappa is not None:
         print(f"  Stage 3 (frictional mobility, κ={kappa})...")
         for it in range(5000):
@@ -636,7 +655,10 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
             diff = max(np.max(np.abs(np.log(w_hat) - np.log(w_hat_old))),
                        np.max(np.abs(np.log(np.maximum(lam_hat, 1e-20)) -
                                       np.log(np.maximum(lam_hat_old, 1e-20)))))
-            if diff < 1e-7:
+            s3_iter_count = it + 1
+            s3_iter_diff = float(diff)
+            if diff < s3_tol:
+                s3_iter_converged = True
                 break
 
         # Final Stage 3 outputs
@@ -691,11 +713,26 @@ def phase4_counterfactual(cfg, admin, population, gdp, pi_full, tc_base, tc_cf):
         "welfare_pct": float(welfare_pct),
         "welfare_s1_pct": float(100*(welfare_s1-1)),
         "welfare_cv": welfare_cv,
-        "stage2_converged": bool(welfare_cv < 0.05),
         # Stage 3 (frictional mobility)
         "welfare_s3_pct": welfare_s3_pct,
         "welfare_s3_cv": welfare_s3_cv,
         "kappa": kappa,
+        # Solver convergence diagnostics (distinct from welfare_cv).
+        # iter_converged = fixed-point iteration met its tolerance (diff < tol)
+        # before max_iter; iter_diff = final residual at exit.
+        "s1_iter_converged": s1_iter_converged,
+        "s1_iter_diff": s1_iter_diff,
+        "s1_iter_count": s1_iter_count,
+        "s2_iter_converged": s2_iter_converged,
+        "s2_iter_diff": s2_iter_diff,
+        "s2_iter_count": s2_iter_count,
+        "s3_iter_converged": s3_iter_converged,
+        "s3_iter_diff": s3_iter_diff,
+        "s3_iter_count": s3_iter_count,
+        # Welfare equalization diagnostic — separate from solver convergence.
+        # Under perfect mobility (Stage 2) this should be ~0; this flag captures
+        # whether equalization was achieved, NOT whether the solver converged.
+        "welfare_equalized": bool(welfare_cv < 0.05),
     }, open(cfg["counterfactual_results"], "w"), indent=2)
 
     return welfare_pct

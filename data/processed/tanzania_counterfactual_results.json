@@ -1,5 +1,4 @@
 {
-  "counterfactual": "pave_all_roads",
   "country": "Tanzania",
   "year": 2019,
   "parameters": {
@@ -8,12 +7,23 @@
     "alpha": 0.65
   },
   "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 258.4377296481929,
   "n_districts": 158,
-  "welfare_pct": 9.437758796651984,
-  "welfare_cv": 4.529170405780364e-10,
-  "stage2_converged": true,
-  "welfare_s3_pct": 9.378154052870302,
-  "welfare_s3_cv": 0.03375016426217744,
+  "n_total": 186,
+  "welfare_pct": 9.550441775652029,
+  "welfare_s1_pct": 9.343579281360181,
+  "welfare_cv": 1.6123810590238133e-09,
+  "welfare_s3_pct": 9.48830695618572,
+  "welfare_s3_cv": 0.03409552931391346,
   "kappa": 2.0,
-  "gdp_pct": -2.5001677460239735
+  "s1_iter_converged": false,
+  "s1_iter_diff": 2.4160584568833077e-06,
+  "s1_iter_count": 5000,
+  "s2_iter_converged": false,
+  "s2_iter_diff": 3.809098187514126e-06,
+  "s2_iter_count": 5000,
+  "s3_iter_converged": false,
+  "s3_iter_diff": 1.8671586446139532e-06,
+  "s3_iter_count": 5000,
+  "welfare_equalized": true
 }
