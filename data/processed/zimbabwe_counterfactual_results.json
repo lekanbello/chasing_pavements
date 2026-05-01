@@ -2,13 +2,19 @@
   "country": "Zimbabwe",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 162.17102396667036,
   "n_districts": 90,
   "n_total": 91,
-  "welfare_pct": 6.95383085903436,
-  "welfare_s1_pct": 26.843416083671933
+  "welfare_pct": 5.5039869045049095,
+  "welfare_s1_pct": 5.553664953705595,
+  "welfare_cv": 4.1565108709875155e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 5.568337082001662,
+  "welfare_s3_cv": 0.02349984607293146,
+  "kappa": 2.0
 }

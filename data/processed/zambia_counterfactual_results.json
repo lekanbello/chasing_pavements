@@ -2,13 +2,19 @@
   "country": "Zambia",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 314.50909162439865,
   "n_districts": 111,
   "n_total": 115,
-  "welfare_pct": 21.055801529762096,
-  "welfare_s1_pct": 35.64793891684748
+  "welfare_pct": 7.5010355167846265,
+  "welfare_s1_pct": 7.372890412223754,
+  "welfare_cv": 3.823624006407102e-10,
+  "stage2_converged": true,
+  "welfare_s3_pct": 7.4956433696548475,
+  "welfare_s3_cv": 0.0337857996345003,
+  "kappa": 2.0
 }

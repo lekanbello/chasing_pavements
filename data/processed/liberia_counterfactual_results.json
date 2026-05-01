@@ -2,13 +2,19 @@
   "country": "Liberia",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 272.4926366179143,
   "n_districts": 58,
   "n_total": 66,
-  "welfare_pct": 29.772284031686745,
-  "welfare_s1_pct": 30.917694539120923
+  "welfare_pct": 10.259746846715778,
+  "welfare_s1_pct": 9.387890614679328,
+  "welfare_cv": 5.1504931100611683e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 9.867893771476123,
+  "welfare_s3_cv": 0.047905178651569465,
+  "kappa": 2.0
 }

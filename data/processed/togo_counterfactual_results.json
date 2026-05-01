@@ -2,13 +2,19 @@
   "country": "Togo",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 182.57252544000846,
   "n_districts": 39,
   "n_total": 40,
-  "welfare_pct": 11.639841345743163,
-  "welfare_s1_pct": 29.046947045260584
+  "welfare_pct": 6.664203932421797,
+  "welfare_s1_pct": 6.840198773616302,
+  "welfare_cv": 9.959692968298051e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 6.859500942635521,
+  "welfare_s3_cv": 0.03772598912013614,
+  "kappa": 2.0
 }

@@ -2,13 +2,19 @@
   "country": "Mozambique",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 336.08305313747076,
   "n_districts": 126,
   "n_total": 129,
-  "welfare_pct": 27.173210285736225,
-  "welfare_s1_pct": 38.07346186145972
+  "welfare_pct": 9.825643041945087,
+  "welfare_s1_pct": 9.471896762490895,
+  "welfare_cv": 1.779917137024994e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 9.694362290321523,
+  "welfare_s3_cv": 0.04504385150278427,
+  "kappa": 2.0
 }

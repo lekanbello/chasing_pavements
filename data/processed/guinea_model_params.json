@@ -4,11 +4,13 @@
   "total_population": 12015038.8125,
   "n_districts": 34,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
-  "trade_cost_scale": 222.54625272117892,
-  "median_pi_nn": 0.8827749317870113
+  "trade_cost_scale": 482.84894433806477,
+  "scale_calibration_status": "exact",
+  "scale_calibration_target": 0.4,
+  "median_pi_nn": 0.39985151916543893,
+  "calibration_version": "v2-rrh-krugman-cse-row"
 }

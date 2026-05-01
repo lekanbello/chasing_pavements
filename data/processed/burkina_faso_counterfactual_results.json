@@ -2,13 +2,19 @@
   "country": "Burkina Faso",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 282.29950281931986,
   "n_districts": 44,
   "n_total": 45,
-  "welfare_pct": 5.420233795420182,
-  "welfare_s1_pct": 12.393949041511675
+  "welfare_pct": 8.202368640817337,
+  "welfare_s1_pct": 8.057972094192856,
+  "welfare_cv": 4.837343261307413e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 8.19604379854717,
+  "welfare_s3_cv": 0.03052512916147279,
+  "kappa": 2.0
 }

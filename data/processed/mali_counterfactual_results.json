@@ -2,13 +2,19 @@
   "country": "Mali",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 529.9247967666566,
   "n_districts": 43,
   "n_total": 50,
-  "welfare_pct": 16.45087324228498,
-  "welfare_s1_pct": 25.25550400412042
+  "welfare_pct": 7.824029118745779,
+  "welfare_s1_pct": 7.708704603177363,
+  "welfare_cv": 4.4316244184480344e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 7.821096675432937,
+  "welfare_s3_cv": 0.029632146329460377,
+  "kappa": 2.0
 }

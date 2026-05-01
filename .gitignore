@@ -44,3 +44,10 @@ data/raw/*.rar
 data/raw/liu_et_al_*/
 data/raw/gadm41_*.gpkg
 ~$*
+
+# Node.js (for build_deck.js)
+node_modules/
+
+# Binary deliverables (regenerated from build_deck.js)
+chasing_pavements_fellowship_report.pptx
+chasing_pavements_fellowship_update.docx

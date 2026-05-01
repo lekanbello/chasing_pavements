@@ -2,13 +2,19 @@
   "country": "Cote d Ivoire",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 340.31720178871285,
   "n_districts": 32,
   "n_total": 33,
-  "welfare_pct": 2.564322595878643,
-  "welfare_s1_pct": 12.829090392371922
+  "welfare_pct": 5.7649551156163215,
+  "welfare_s1_pct": 5.771884061663446,
+  "welfare_cv": 8.520469510157965e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 5.816154610094659,
+  "welfare_s3_cv": 0.024416535593087076,
+  "kappa": 2.0
 }

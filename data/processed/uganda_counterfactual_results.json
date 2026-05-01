@@ -2,13 +2,19 @@
   "country": "Uganda",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 120.70328658177463,
   "n_districts": 158,
   "n_total": 166,
-  "welfare_pct": 28.389891672636523,
-  "welfare_s1_pct": 45.654301931235764
+  "welfare_pct": 10.82812451571038,
+  "welfare_s1_pct": 10.849156369071444,
+  "welfare_cv": 9.954119334209992e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 10.906863258532296,
+  "welfare_s3_cv": 0.0288689486828801,
+  "kappa": 2.0
 }

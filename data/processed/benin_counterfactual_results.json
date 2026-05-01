@@ -2,13 +2,19 @@
   "country": "Benin",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 108.44632540106973,
   "n_districts": 72,
   "n_total": 78,
-  "welfare_pct": 16.457803216539357,
-  "welfare_s1_pct": 44.98380311614778
+  "welfare_pct": 5.336595495245455,
+  "welfare_s1_pct": 5.3603190865151085,
+  "welfare_cv": 1.8667944687803823e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 5.380531759005103,
+  "welfare_s3_cv": 0.020209361413047636,
+  "kappa": 2.0
 }

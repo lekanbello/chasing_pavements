@@ -2,13 +2,19 @@
   "country": "Equatorial Guinea",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 148.2139695325053,
   "n_districts": 29,
   "n_total": 32,
-  "welfare_pct": 17.711124737261418,
-  "welfare_s1_pct": 38.16027907324535
+  "welfare_pct": 6.601576329342551,
+  "welfare_s1_pct": 6.967972624314456,
+  "welfare_cv": 8.914903509302931e-10,
+  "stage2_converged": true,
+  "welfare_s3_pct": 6.916212998492455,
+  "welfare_s3_cv": 0.04190709244264629,
+  "kappa": 2.0
 }

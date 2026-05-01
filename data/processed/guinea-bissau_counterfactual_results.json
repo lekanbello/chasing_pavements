@@ -2,13 +2,19 @@
   "country": "Guinea-Bissau",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 173.81886841587908,
   "n_districts": 34,
   "n_total": 37,
-  "welfare_pct": 10.26644589847756,
-  "welfare_s1_pct": 13.791150677709663
+  "welfare_pct": 8.189139132649338,
+  "welfare_s1_pct": 7.973196746941769,
+  "welfare_cv": 5.758013013975381e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 8.154729885517709,
+  "welfare_s3_cv": 0.0339015521747345,
+  "kappa": 2.0
 }

@@ -2,13 +2,19 @@
   "country": "Kenya",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 76.04177228783064,
   "n_districts": 298,
   "n_total": 300,
-  "welfare_pct": 30.678050451570392,
-  "welfare_s1_pct": 63.43809757401597
+  "welfare_pct": 9.404618412092326,
+  "welfare_s1_pct": 9.35384280051068,
+  "welfare_cv": 2.7838004306573434e-09,
+  "stage2_converged": true,
+  "welfare_s3_pct": 9.446617948924896,
+  "welfare_s3_cv": 0.03413182785331163,
+  "kappa": 2.0
 }

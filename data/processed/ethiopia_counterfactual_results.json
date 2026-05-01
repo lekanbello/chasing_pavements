@@ -2,13 +2,19 @@
   "country": "Ethiopia",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 482.67913875753396,
   "n_districts": 76,
   "n_total": 79,
-  "welfare_pct": 15.853521917365665,
-  "welfare_s1_pct": 39.19290389252615
+  "welfare_pct": 11.23219476550621,
+  "welfare_s1_pct": 11.576671414671512,
+  "welfare_cv": 4.312094854695298e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 11.520539901043625,
+  "welfare_s3_cv": 0.040438543989245436,
+  "kappa": 2.0
 }

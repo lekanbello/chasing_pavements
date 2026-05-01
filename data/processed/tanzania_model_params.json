@@ -1,16 +1,16 @@
 {
   "year": 2019,
   "national_gdp_usd": 61026731925.9213,
-  "total_population": 54749800.077343754,
+  "total_population": 54749799.46054687,
   "n_districts": 186,
   "parameters": {
     "sigma": 5.0,
     "kappa": 2.0,
     "alpha": 0.65
   },
-  "trade_cost_scale": 263.0991900374138,
+  "trade_cost_scale": 258.4377296481929,
   "scale_calibration_status": "exact",
   "scale_calibration_target": 0.4,
-  "median_pi_nn": 0.3999045476500572,
+  "median_pi_nn": 0.3998870736578063,
   "calibration_version": "v2-rrh-krugman-cse-row"
 }

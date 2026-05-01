@@ -2,13 +2,19 @@
   "country": "South Africa",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 330.82365024958136,
   "n_districts": 51,
   "n_total": 52,
-  "welfare_pct": 0.6346948648417117,
-  "welfare_s1_pct": 3.1142728431772904
+  "welfare_pct": 1.6241611346941465,
+  "welfare_s1_pct": 1.6060045456836036,
+  "welfare_cv": 1.0707913252830558e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 1.620233979120922,
+  "welfare_s3_cv": 0.012022860173295376,
+  "kappa": 2.0
 }

@@ -1,0 +1,23 @@
+{
+  "name": "chasing_pavements",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lekanbello/chasing_pavements.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lekanbello/chasing_pavements/issues"
+  },
+  "homepage": "https://github.com/lekanbello/chasing_pavements#readme",
+  "description": "",
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
+}

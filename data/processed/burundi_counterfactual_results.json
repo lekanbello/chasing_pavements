@@ -2,13 +2,19 @@
   "country": "Burundi",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 60.659189580756916,
   "n_districts": 128,
   "n_total": 133,
-  "welfare_pct": 32.123331749337765,
-  "welfare_s1_pct": 47.19051729257564
+  "welfare_pct": 15.52450491555919,
+  "welfare_s1_pct": 15.443856916820886,
+  "welfare_cv": 6.146533228598581e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 15.603745471779163,
+  "welfare_s3_cv": 0.04298279952926638,
+  "kappa": 2.0
 }

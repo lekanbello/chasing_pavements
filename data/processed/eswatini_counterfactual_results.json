@@ -2,13 +2,19 @@
   "country": "Eswatini",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 68.92446396321381,
   "n_districts": 55,
   "n_total": 55,
-  "welfare_pct": 9.725262940497249,
-  "welfare_s1_pct": 25.569533883306384
+  "welfare_pct": 9.384629806600087,
+  "welfare_s1_pct": 9.26487070291242,
+  "welfare_cv": 5.404684090125416e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 9.371523922144354,
+  "welfare_s3_cv": 0.03117560374886256,
+  "kappa": 2.0
 }

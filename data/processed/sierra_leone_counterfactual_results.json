@@ -2,13 +2,19 @@
   "country": "Sierra Leone",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 436.9916263731204,
   "n_districts": 14,
   "n_total": 14,
-  "welfare_pct": 3.1129461697418037,
-  "welfare_s1_pct": 16.31815475139746
+  "welfare_pct": 7.068060335452864,
+  "welfare_s1_pct": 6.9275623683942245,
+  "welfare_cv": 4.0023449945852186e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 7.023964057728338,
+  "welfare_s3_cv": 0.028129158347183176,
+  "kappa": 2.0
 }

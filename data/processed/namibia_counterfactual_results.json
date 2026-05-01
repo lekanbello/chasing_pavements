@@ -2,13 +2,19 @@
   "country": "Namibia",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 275.0177624864219,
   "n_districts": 103,
   "n_total": 107,
-  "welfare_pct": 29.02596126648056,
-  "welfare_s1_pct": 63.783417344947836
+  "welfare_pct": 7.302491748560214,
+  "welfare_s1_pct": 7.045425715418974,
+  "welfare_cv": 6.975894424643291e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 7.181307092197087,
+  "welfare_s3_cv": 0.029293224047062152,
+  "kappa": 2.0
 }

@@ -2,13 +2,19 @@
   "country": "Gambia",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 67.39295032483099,
   "n_districts": 37,
   "n_total": 37,
-  "welfare_pct": 4.560119273490093,
-  "welfare_s1_pct": 24.349840490776998
+  "welfare_pct": 2.779237477461338,
+  "welfare_s1_pct": 2.8021916398861535,
+  "welfare_cv": 1.650073818114195e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 2.803562281843397,
+  "welfare_s3_cv": 0.021618981560251445,
+  "kappa": 2.0
 }

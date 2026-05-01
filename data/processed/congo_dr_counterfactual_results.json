@@ -2,13 +2,19 @@
   "country": "Congo DR",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 619.4636402775362,
   "n_districts": 217,
   "n_total": 240,
-  "welfare_pct": 53.51873869920092,
-  "welfare_s1_pct": 89.4427332008934
+  "welfare_pct": 13.574787578126891,
+  "welfare_s1_pct": 13.32460573213452,
+  "welfare_cv": 1.3617728769787215e-09,
+  "stage2_converged": true,
+  "welfare_s3_pct": 13.536681953908136,
+  "welfare_s3_cv": 0.05972708750532668,
+  "kappa": 2.0
 }

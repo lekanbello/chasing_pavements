@@ -2,13 +2,19 @@
   "country": "Botswana",
   "year": 2019,
   "parameters": {
-    "theta": 5.0,
+    "sigma": 5.0,
     "kappa": 2.0,
-    "alpha": 0.65,
-    "sigma": 5.0
+    "alpha": 0.65
   },
+  "calibration_version": "v2-rrh-krugman-cse-row",
+  "trade_cost_scale": 379.91508699806735,
   "n_districts": 26,
   "n_total": 30,
-  "welfare_pct": 3.621923676974892,
-  "welfare_s1_pct": 16.506598456761544
+  "welfare_pct": 3.8780041305627844,
+  "welfare_s1_pct": 3.801768052028165,
+  "welfare_cv": 8.542869677642358e-08,
+  "stage2_converged": true,
+  "welfare_s3_pct": 3.8423318491925817,
+  "welfare_s3_cv": 0.01896875540973819,
+  "kappa": 2.0
 }
